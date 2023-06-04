@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Component
-public class ItemStorageImpl implements ItemStorage{
+public class ItemStorageImpl implements ItemStorage {
     private Map<Long, Item> items = new HashMap<>();
 
     @Override
@@ -48,7 +48,7 @@ public class ItemStorageImpl implements ItemStorage{
                     && entry.getValue().getAvailable()) {
                 result.add(entry.getValue());
             } else if (entry.getValue().getDescription().toLowerCase().contains(keyword.toLowerCase())
-                    && entry.getValue().getAvailable()){
+                    && entry.getValue().getAvailable()) {
                 result.add(entry.getValue());
             }
         }
