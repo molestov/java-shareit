@@ -33,10 +33,10 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public Item addItem(Long ownerId, Item item) {
-        if(!userStorage.checkUserId(ownerId)) {
+        if (!userStorage.checkUserId(ownerId)) {
             throw new UnknownIdException();
         }
-        if(item.getName().equals("")) {
+        if (item.getName().equals("")) {
             throw new EmptyNameException();
         }
         item.setId(id);
@@ -48,7 +48,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public Item updateItem(Long ownerId, Long id, ItemDto item) {
         Item itemFromDb = itemStorage.getItemById(id);
-        if(!Objects.equals(itemFromDb.getOwner(), ownerId)) {
+        if (!Objects.equals(itemFromDb.getOwner(), ownerId)) {
             throw new IllegalUserException();
         }
         String[] ignoredProperties = getNullPropertyNames(item);
@@ -79,7 +79,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> searchItemByKeyword(String keyword) {
-        if(keyword.isEmpty()) {
+        if (keyword.isEmpty()) {
             return new ArrayList<>();
         }
         return itemStorage.searchItemByKeyword(keyword);

@@ -37,7 +37,7 @@ public class UserService {
     public User updateUser(Long id, UserDto user) {
         User userFromDb = userStorage.getUser(id);
         if (user.getEmail() != null) {
-            if(!user.getEmail().equals(userFromDb.getEmail())) {
+            if (!user.getEmail().equals(userFromDb.getEmail())) {
                 if (userStorage.checkEmail(user.getEmail())) {
                     throw new DuplicatedEmailException();
                 }
@@ -57,7 +57,7 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        if(!userStorage.checkUserId(id)) {
+        if (!userStorage.checkUserId(id)) {
             throw new UnknownIdException();
         }
         return userStorage.getUser(id);

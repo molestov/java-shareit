@@ -7,9 +7,11 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 @Component
 public class ItemStorageImpl implements ItemStorage{
     private Map<Long, Item> items = new HashMap<>();
+
     @Override
     public Item addItem(Item item) {
         items.put(item.getId(), item);
@@ -55,7 +57,7 @@ public class ItemStorageImpl implements ItemStorage{
 
     @Override
     public boolean checkItemId(Long id) {
-        if(items.containsKey(id)) {
+        if (items.containsKey(id)) {
             return true;
         }
         return false;
