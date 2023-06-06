@@ -18,35 +18,35 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleThrowable(final Throwable e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleUnknownId(final UnknownIdException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.CONFLICT)
     public ErrorResponse handleDuplicateEmail(final DuplicatedEmailException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.NOT_FOUND)
     public ErrorResponse handleIllegalUser(final IllegalUserException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleEmptyItemName(final EmptyNameException e) {
-        log.info(e.getMessage());
+        log.warn(e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }
 }

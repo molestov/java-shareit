@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class UserStorageImpl implements UserStorage {
@@ -36,8 +37,8 @@ public class UserStorageImpl implements UserStorage {
 
     @Override
     public Boolean checkEmail(String email) {
-        for (Map.Entry<Long, User> entry : users.entrySet()) {
-            if (entry.getValue().getEmail().equals(email)) {
+        for (User user : users.values()) {
+            if (user.getEmail().equals(email)) {
                 return true;
             }
         }

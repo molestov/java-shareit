@@ -36,12 +36,10 @@ public class UserService {
 
     public User updateUser(Long id, UserDto user) {
         User userFromDb = userStorage.getUser(id);
-        if (user.getEmail() != null) {
-            if (!user.getEmail().equals(userFromDb.getEmail())) {
-                if (userStorage.checkEmail(user.getEmail())) {
-                    throw new DuplicatedEmailException();
-                }
-            }
+        if (user.getEmail() != null
+                && !user.getEmail().equals(userFromDb.getEmail())
+                &&  userStorage.checkEmail(user.getEmail())) {
+            throw new DuplicatedEmailException();
         }
         String[] ignoredProperties = getNullPropertyNames(user);
         BeanUtils.copyProperties(user, userFromDb, ignoredProperties);
