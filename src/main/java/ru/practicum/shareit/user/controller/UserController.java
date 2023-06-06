@@ -1,6 +1,5 @@
 package ru.practicum.shareit.user.controller;
 
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,19 +18,16 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping(path = "/users")
 public class UserController {
-    private UserService userService;
-    private UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, UserMapper userMapper) {
         this.userService = userService;
-        this.userMapper = Mappers.getMapper(UserMapper.class);
+        this.userMapper = userMapper;
     }
 
     @PostMapping
@@ -42,7 +38,6 @@ public class UserController {
 
     @PatchMapping("/{id}")
     public UserDto updateUser(@PathVariable Long id, @Valid @RequestBody UserDto user) {
-        //User userEntity = userMapper.toUser(user);
         return userMapper.toUserDto(userService.updateUser(id, user));
     }
 

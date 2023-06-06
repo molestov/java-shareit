@@ -11,9 +11,9 @@ public interface ItemStorage {
 
     Item getItemById(Long id);
 
-    List<Item> getItemByOwnerId(Long id);
+    List<Item> getItemsByOwnerId(Long id);
 
-    List<Item> searchItemByKeyword(String keyword);
+    List<Item> searchItemsByKeyword(String keyword);
 
     boolean checkItemId(Long id);
 }

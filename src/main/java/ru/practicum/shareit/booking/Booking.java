@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
-/**
- * TODO Sprint add-bookings.
- */
 @Data
 public class Booking {
     private Long id;

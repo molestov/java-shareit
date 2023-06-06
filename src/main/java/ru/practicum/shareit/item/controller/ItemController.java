@@ -1,6 +1,5 @@
 package ru.practicum.shareit.item.controller;
 
-import org.mapstruct.factory.Mappers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,19 +19,17 @@ import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * TODO Sprint add-controllers.
- */
 @RestController
 @RequestMapping("/items")
 public class ItemController {
     private ItemService itemService;
+
     private ItemMapper itemMapper;
 
     @Autowired
-    public ItemController(ItemService itemService) {
+    public ItemController(ItemService itemService, ItemMapper itemMapper) {
         this.itemService = itemService;
-        this.itemMapper = Mappers.getMapper(ItemMapper.class);
+        this.itemMapper = itemMapper;
     }
 
     @PostMapping

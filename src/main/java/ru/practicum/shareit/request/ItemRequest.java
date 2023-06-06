@@ -4,9 +4,6 @@ import lombok.Data;
 
 import java.sql.Timestamp;
 
-/**
- * TODO Sprint add-item-requests.
- */
 @Data
 public class ItemRequest {
     private Long id;

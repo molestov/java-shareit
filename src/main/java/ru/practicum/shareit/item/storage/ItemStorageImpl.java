@@ -3,10 +3,11 @@ package ru.practicum.shareit.item.storage;
 import org.springframework.stereotype.Component;
 import ru.practicum.shareit.item.model.Item;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 @Component
 public class ItemStorageImpl implements ItemStorage {
@@ -30,36 +31,22 @@ public class ItemStorageImpl implements ItemStorage {
     }
 
     @Override
-    public List<Item> getItemByOwnerId(Long id) {
-        List<Item> result = new ArrayList<>();
-        for (Map.Entry<Long, Item> entry : items.entrySet()) {
-            if (entry.getValue().getOwner().equals(id)) {
-                result.add(entry.getValue());
-            }
-        }
-        return result;
+    public List<Item> getItemsByOwnerId(Long id) {
+        return items.values().stream()
+                .filter(Item -> Objects.equals(Item.getOwner(), id))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public List<Item> searchItemByKeyword(String keyword) {
-        List<Item> result = new ArrayList<>();
-        for (Map.Entry<Long, Item> entry : items.entrySet()) {
-            if (entry.getValue().getName().toLowerCase().contains(keyword.toLowerCase())
-                    && entry.getValue().getAvailable()) {
-                result.add(entry.getValue());
-            } else if (entry.getValue().getDescription().toLowerCase().contains(keyword.toLowerCase())
-                    && entry.getValue().getAvailable()) {
-                result.add(entry.getValue());
-            }
-        }
-        return result;
+    public List<Item> searchItemsByKeyword(String keyword) {
+        return items.values().stream()
+                .filter(Item -> Item.getName().toLowerCase().contains(keyword.toLowerCase()) && Item.getAvailable()
+                        || Item.getDescription().toLowerCase().contains(keyword.toLowerCase()) && Item.getAvailable())
+                .collect(Collectors.toList());
     }
 
     @Override
     public boolean checkItemId(Long id) {
-        if (items.containsKey(id)) {
-            return true;
-        }
-        return false;
+        return items.containsKey(id);
     }
 }

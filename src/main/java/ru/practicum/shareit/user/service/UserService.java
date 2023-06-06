@@ -17,7 +17,7 @@ import java.util.stream.Stream;
 
 @Service
 public class UserService {
-    private UserStorage userStorage;
+    private final UserStorage userStorage;
     private Long id = 1L;
 
     @Autowired

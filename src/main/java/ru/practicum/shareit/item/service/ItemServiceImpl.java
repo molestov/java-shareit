@@ -21,8 +21,8 @@ import java.util.stream.Stream;
 
 @Service
 public class ItemServiceImpl implements ItemService {
-    ItemStorage itemStorage;
-    UserStorage userStorage;
+    private final ItemStorage itemStorage;
+    private final UserStorage userStorage;
     private Long id = 1L;
 
     @Autowired
@@ -74,7 +74,7 @@ public class ItemServiceImpl implements ItemService {
 
     @Override
     public List<Item> getItemByOwnerId(Long id) {
-        return itemStorage.getItemByOwnerId(id);
+        return itemStorage.getItemsByOwnerId(id);
     }
 
     @Override
@@ -82,6 +82,6 @@ public class ItemServiceImpl implements ItemService {
         if (keyword.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemStorage.searchItemByKeyword(keyword);
+        return itemStorage.searchItemsByKeyword(keyword);
     }
 }
