@@ -55,7 +55,7 @@ public class BookingService {
         return addEntitiesToReturnValue(savedBooking);
     }
 
-    public Booking getBooking (Long userId, Long bookingId) {
+    public Booking getBooking(Long userId, Long bookingId) {
         Booking booking = bookingStorage.findById(bookingId).orElseThrow(UnknownIdException::new);
         if (userId != booking.getBookerId()) {
             Item item = itemStorage.findById(booking.getItemId()).get();
@@ -68,7 +68,7 @@ public class BookingService {
 
     public Booking setBookingStatus(Long userId, Long bookingId, boolean approved) {
         Booking booking = bookingStorage.findById(bookingId).get();
-        if(!userStorage.existsById(userId) || !itemStorage.existsById(booking.getItemId())) {
+        if (!userStorage.existsById(userId) || !itemStorage.existsById(booking.getItemId())) {
             throw new UnknownIdException();
         }
         Item item = itemStorage.findById(booking.getItemId()).get();

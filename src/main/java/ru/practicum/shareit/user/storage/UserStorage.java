@@ -9,6 +9,8 @@ import java.util.Optional;
 @Repository
 public interface UserStorage extends JpaRepository<User, Long> {
     User save(User user);
+
     Optional<User> findById(Long id);
+
     User findByEmail(String email);
 }

@@ -14,9 +14,13 @@ import java.util.Optional;
 @Table(name = "items")
 public interface ItemStorage extends JpaRepository<Item, Long> {
     Item save(Item item);
+
     Optional<Item> findById(Long id);
+
     List<Item> findAllByOwnerOrderById(Long id);
+
     boolean existsById(Long id);
+
     @Query(value = "select * from items where lower(name) like concat('%',lower(:keyword),'%') or lower(description) " +
             "like concat('%',lower(:keyword),'%') and available=true", nativeQuery = true)
     List<Item> findItemsByKeyword(@Param("keyword") String keyword);

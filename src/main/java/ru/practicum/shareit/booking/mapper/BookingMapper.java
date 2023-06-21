@@ -10,7 +10,9 @@ import java.time.LocalDateTime;
 @Mapper
 public interface BookingMapper {
     BookingDto bookingToBookingDto(Booking booking);
+
     Booking bookingDtoToBooking(BookingDto bookingDto);
+
     default Timestamp map(LocalDateTime value) {
         return Timestamp.valueOf(value);
     }

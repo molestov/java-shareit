@@ -11,10 +11,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.booking.exception.WrongStateException;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.service.BookingService;
 
 import javax.validation.Valid;
@@ -58,7 +56,7 @@ public class BookingController {
                                                      @RequestParam(value = "state", defaultValue = "ALL")
                                                      String state) {
         return bookingService.getAllUserBookingsByState(userId, state).stream()
-                .map(x->bookingMapper.bookingToBookingDto(x))
+                .map(x -> bookingMapper.bookingToBookingDto(x))
                 .collect(Collectors.toList());
     }
 
