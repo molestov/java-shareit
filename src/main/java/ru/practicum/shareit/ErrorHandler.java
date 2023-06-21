@@ -5,6 +5,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import ru.practicum.shareit.booking.exception.EndBeforeStartException;
+import ru.practicum.shareit.booking.exception.UnavailableItemException;
+import ru.practicum.shareit.booking.exception.WrongStateException;
+import ru.practicum.shareit.item.exception.BookingByOwnerException;
 import ru.practicum.shareit.item.exception.EmptyNameException;
 import ru.practicum.shareit.item.exception.IllegalUserException;
 import ru.practicum.shareit.user.exception.DuplicatedEmailException;
@@ -46,6 +50,34 @@ public class ErrorHandler {
     @ExceptionHandler
     @ResponseStatus(HttpStatus.BAD_REQUEST)
     public ErrorResponse handleEmptyItemName(final EmptyNameException e) {
+        log.warn(e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleUnavailableItem(final UnavailableItemException e) {
+        log.warn(e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleEndBeforeStart(final EndBeforeStartException e) {
+        log.warn(e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ErrorResponse handleWrongState(final WrongStateException e) {
+        log.warn(e.getMessage(), e);
+        return new ErrorResponse(e.getMessage());
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ErrorResponse handleOwnerBooking(final BookingByOwnerException e) {
         log.warn(e.getMessage(), e);
         return new ErrorResponse(e.getMessage());
     }

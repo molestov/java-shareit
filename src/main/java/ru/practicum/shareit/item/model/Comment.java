@@ -1,38 +1,39 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.NonNull;
-import ru.practicum.shareit.booking.model.Booking;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.List;
+import java.sql.Timestamp;
 
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "items", schema = "public")
-public class Item {
+@Table(name = "comments", schema = "public")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @NonNull
-    private String name;
+    @Column(name = "text")
+    private String text;
+    @Column(name = "item_id")
     @NonNull
-    private String description;
+    private Long item;
+    @Column(name = "author_id")
     @NonNull
-    private Boolean available;
-    private Long owner;
-    private Long request;
+    private Long author;
     @Transient
-    private Booking lastBooking;
-    @Transient
-    private Booking nextBooking;
-    @Transient
-    private List<Comment> comments;
+    private String authorName;
+    @NonNull
+    private Timestamp created;
 }

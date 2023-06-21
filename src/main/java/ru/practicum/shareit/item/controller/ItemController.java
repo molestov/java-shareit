@@ -10,12 +10,16 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.mapper.ItemMapper;
+import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
 
 import javax.validation.Valid;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -47,13 +51,13 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItem(@PathVariable Long id) {
-        return itemMapper.toItemDto(itemService.getItemById(id));
+    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
+        return itemMapper.toItemDto(itemService.getItemById(userId, id));
     }
 
     @GetMapping
     public List<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long id) {
-        List<Item> items =  itemService.getItemByOwnerId(id);
+        List<Item> items =  itemService.getItemsByOwnerId(id);
         return items.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -61,9 +65,19 @@ public class ItemController {
 
     @GetMapping(value = "/search")
     public List<ItemDto> searchItemByKeyword(@RequestParam(value = "text") String text) {
-        List<Item> items =  itemService.searchItemByKeyword(text);
+        List<Item> items =  itemService.findItemsByKeyword(text);
         return items.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
+    }
+
+    @PostMapping(value = "/{itemId}/comment")
+    public CommentDto addComment(@RequestHeader("X-Sharer-User-Id") Long id,
+                                 @PathVariable Long itemId,
+                                 @Valid @RequestBody CommentDto comment) {
+        comment.setAuthor(id);
+        comment.setItem(itemId);
+        comment.setCreated(Timestamp.valueOf(LocalDateTime.now()));
+        return itemMapper.toCommentDto(itemService.addComment(id, itemId, itemMapper.toComment(comment)));
     }
 }

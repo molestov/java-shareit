@@ -4,6 +4,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.user.exception.DuplicatedEmailException;
 import ru.practicum.shareit.user.exception.UnknownIdException;
@@ -16,9 +17,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
+@EnableJpaRepositories
 public class UserService {
     private final UserStorage userStorage;
-    private Long id = 1L;
 
     @Autowired
     public UserService(UserStorage userStorage) {
@@ -26,24 +27,22 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        if (userStorage.checkEmail(user.getEmail())) {
+        if (userStorage.findByEmail(user.getEmail()) != null) {
             throw new DuplicatedEmailException();
         }
-        user.setId(id);
-        id++;
-        return userStorage.addUser(user);
+        return userStorage.save(user);
     }
 
     public User updateUser(Long id, UserDto user) {
-        User userFromDb = userStorage.getUser(id);
+        User userFromDb = userStorage.findById(id).get();
         if (user.getEmail() != null
                 && !user.getEmail().equals(userFromDb.getEmail())
-                &&  userStorage.checkEmail(user.getEmail())) {
+                &&  userStorage.findByEmail(user.getEmail()) != null) {
             throw new DuplicatedEmailException();
         }
         String[] ignoredProperties = getNullPropertyNames(user);
         BeanUtils.copyProperties(user, userFromDb, ignoredProperties);
-        return userStorage.updateUser(id, userFromDb);
+        return userStorage.save(userFromDb);
     }
 
     private static String[] getNullPropertyNames(Object object) {
@@ -55,17 +54,17 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        if (!userStorage.checkUserId(id)) {
+        if (!userStorage.existsById(id)) {
             throw new UnknownIdException();
         }
-        return userStorage.getUser(id);
+        return userStorage.findById(id).get();
     }
 
     public void removeUser(Long userId) {
-        userStorage.removeUser(userId);
+        userStorage.deleteById(userId);
     }
 
     public List<User> getAllUsers() {
-        return userStorage.getAllUsers();
+        return userStorage.findAll();
     }
 }
