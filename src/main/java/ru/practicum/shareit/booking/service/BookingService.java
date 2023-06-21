@@ -57,9 +57,9 @@ public class BookingService {
 
     public Booking getBooking(Long userId, Long bookingId) {
         Booking booking = bookingStorage.findById(bookingId).orElseThrow(UnknownIdException::new);
-        if (userId != booking.getBookerId()) {
+        if (!Objects.equals(userId, booking.getBookerId())) {
             Item item = itemStorage.findById(booking.getItemId()).get();
-            if (userId != item.getOwner()) {
+            if (!Objects.equals(userId, item.getOwner())) {
                 throw new IllegalUserException();
             }
         }
@@ -72,7 +72,7 @@ public class BookingService {
             throw new UnknownIdException();
         }
         Item item = itemStorage.findById(booking.getItemId()).get();
-        if (userId != item.getOwner()) {
+        if (!userId.equals(item.getOwner())) {
             throw new IllegalUserException();
         }
         if (approved) {
