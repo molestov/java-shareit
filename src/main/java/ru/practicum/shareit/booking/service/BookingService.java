@@ -37,7 +37,7 @@ public class BookingService {
     private final ItemService itemService;
 
     public Booking addBooking(Long id, Booking booking) {
-        if(!userStorage.existsById(id) || !itemStorage.existsById(booking.getItemId())) {
+        if (!userStorage.existsById(id) || !itemStorage.existsById(booking.getItemId())) {
             throw new UnknownIdException();
         }
         if (!itemStorage.findById(booking.getItemId()).get().getAvailable()) {
