@@ -1,6 +1,6 @@
 package ru.practicum.shareit.item.service;
 
-import lombok.Data;
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
-@Data
+@AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
     @Autowired
     private final ItemStorage itemStorage;
