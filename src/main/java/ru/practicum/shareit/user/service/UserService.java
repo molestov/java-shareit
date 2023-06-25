@@ -6,8 +6,8 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.user.exception.DuplicatedEmailException;
-import ru.practicum.shareit.user.exception.UnknownIdException;
+import ru.practicum.shareit.error.exception.DuplicatedEmailException;
+import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.storage.UserStorage;
@@ -27,17 +27,17 @@ public class UserService {
     }
 
     public User addUser(User user) {
-        if (userStorage.findByEmail(user.getEmail()) != null) {
+        if (userStorage.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicatedEmailException();
         }
         return userStorage.save(user);
     }
 
     public User updateUser(Long id, UserDto user) {
-        User userFromDb = userStorage.findById(id).get();
+        User userFromDb = userStorage.findById(id).orElseThrow(UnknownIdException::new);
         if (user.getEmail() != null
                 && !user.getEmail().equals(userFromDb.getEmail())
-                &&  userStorage.findByEmail(user.getEmail()) != null) {
+                && userStorage.findByEmail(user.getEmail()).isPresent()) {
             throw new DuplicatedEmailException();
         }
         String[] ignoredProperties = getNullPropertyNames(user);
@@ -57,7 +57,7 @@ public class UserService {
         if (!userStorage.existsById(id)) {
             throw new UnknownIdException();
         }
-        return userStorage.findById(id).get();
+        return userStorage.findById(id).orElseThrow(UnknownIdException::new);
     }
 
     public void removeUser(Long userId) {

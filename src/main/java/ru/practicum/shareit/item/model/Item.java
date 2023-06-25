@@ -2,8 +2,6 @@ package ru.practicum.shareit.item.model;
 
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
-import ru.practicum.shareit.booking.model.Booking;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -21,18 +19,13 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @NonNull
     private String name;
-    @NonNull
     private String description;
-    @NonNull
     private Boolean available;
     private Long owner;
     private Long request;
     @Transient
-    private Booking lastBooking;
-    @Transient
-    private Booking nextBooking;
-    @Transient
     private List<Comment> comments;
+    @Transient
+    private boolean ownerRequest;
 }

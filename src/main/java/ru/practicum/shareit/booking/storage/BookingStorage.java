@@ -13,6 +13,9 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
     @Query(value = "select * from bookings where booker_id = ?1 order by start_date DESC", nativeQuery = true)
     List<Booking> getAllBookingsByBookerId(Long bookerId);
 
+    @Query(value = "select * from bookings where booker_id = ?1 and item_id = ?2 and status = 'APPROVED' and start_date < CURRENT_TIMESTAMP limit 1", nativeQuery = true)
+    Optional<Booking> checkUserBookings(Long bookerId, Long itemId);
+
     @Query(value = "select * from bookings where booker_id = ?1 and start_date > CURRENT_TIMESTAMP " +
             "order by start_date DESC", nativeQuery = true)
     List<Booking> getAllFutureBookingsForBooker(Long bookerId);
@@ -49,10 +52,6 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
             "where b.status = 'REJECTED'", nativeQuery = true)
     List<Booking> getAllRejectedBookingsForOwner(Long userId);
 
-    @Query(value = "select * from bookings b where b.item_id = ?1 and status = '1' order by b.end_date ASC limit 2",
-            nativeQuery = true)
-    List<Booking> getBookingsByItemId(Long itemId);
-
     @Query(value = "select * from bookings b where b.item_id = ?1 and start_date < current_timestamp " +
             "order by b.start_date DESC limit 1", nativeQuery = true)
     Optional<Booking> getLastBooking(Long itemId);
@@ -60,10 +59,6 @@ public interface BookingStorage extends JpaRepository<Booking, Long> {
     @Query(value = "select * from bookings b where b.item_id = ?1 and start_date > current_timestamp and status = 'APPROVED' " +
             "order by b.start_date ASC limit 1", nativeQuery = true)
     Optional<Booking> getNextBooking(Long itemId);
-
-    @Query(value = "select * from bookings b where b.item_id = ?1 and b.booker_id = ?2 limit 1",
-            nativeQuery = true)
-    Booking getBookingByItemIdAndBookerId(Long itemId, Long bookerId);
 
     @Query(value = "select * from bookings where booker_id = ?1 and end_date < CURRENT_TIMESTAMP " +
             "order by start_date DESC", nativeQuery = true)

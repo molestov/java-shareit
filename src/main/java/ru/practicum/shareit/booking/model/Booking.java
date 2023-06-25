@@ -12,9 +12,9 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
-import javax.validation.constraints.FutureOrPresent;
 import java.sql.Timestamp;
 
 @Data
@@ -26,17 +26,14 @@ public class Booking {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Column(name = "start_date")
-    @FutureOrPresent
     private Timestamp start;
     @Column(name = "end_date")
     private Timestamp end;
-    @Column(name = "item_id")
-    private Long itemId;
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "item_id")
     private Item item;
-    @Column(name = "booker_id")
-    private Long bookerId;
-    @Transient
+    @ManyToOne
+    @JoinColumn(name = "booker_id")
     private User booker;
     @Enumerated(EnumType.STRING)
     private BookingStatus status;

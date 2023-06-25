@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
+import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
@@ -25,9 +26,9 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/items")
 public class ItemController {
-    private ItemService itemService;
+    private final ItemService itemService;
 
-    private ItemMapper itemMapper;
+    private final ItemMapper itemMapper;
 
     @Autowired
     public ItemController(ItemService itemService, ItemMapper itemMapper) {
@@ -38,8 +39,7 @@ public class ItemController {
     @PostMapping
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long id,
                            @Valid @RequestBody ItemDto item) {
-        Item itemEntity = itemMapper.toItem(item);
-        return itemMapper.toItemDto(itemService.addItem(id, itemEntity));
+        return itemMapper.toItemDto(itemService.addItem(id, itemMapper.toItem(item)));
     }
 
     @PatchMapping("/{id}")
@@ -50,15 +50,15 @@ public class ItemController {
     }
 
     @GetMapping("/{id}")
-    public ItemDto getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
-        return itemMapper.toItemDto(itemService.getItemById(userId, id));
+    public ItemDtoWithBookings getItem(@RequestHeader("X-Sharer-User-Id") Long userId, @PathVariable Long id) {
+        return itemMapper.toItemDtoWithBookings(itemService.getItemById(userId, id));
     }
 
     @GetMapping
-    public List<ItemDto> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long id) {
+    public List<ItemDtoWithBookings> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long id) {
         List<Item> items =  itemService.getItemsByOwnerId(id);
         return items.stream()
-                .map(itemMapper::toItemDto)
+                .map(itemMapper::toItemDtoWithBookings)
                 .collect(Collectors.toList());
     }
 

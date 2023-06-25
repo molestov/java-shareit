@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.dto.BookingDtoWithEntities;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
@@ -22,8 +23,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping(path = "/bookings")
 public class BookingController {
-    BookingService bookingService;
-    BookingMapper bookingMapper;
+    private final BookingService bookingService;
+    private final BookingMapper bookingMapper;
 
     @Autowired
     public BookingController(BookingService bookingService, BookingMapper bookingMapper) {
@@ -32,39 +33,41 @@ public class BookingController {
     }
 
     @PostMapping
-    public BookingDto addBooking(@RequestHeader("X-Sharer-User-Id") Long id,
-                                 @Valid @RequestBody BookingDto bookingDto) {
+    public BookingDtoWithEntities addBooking(@RequestHeader("X-Sharer-User-Id") Long id,
+                                             @Valid @RequestBody BookingDto bookingDto) {
+        bookingDto.setBookerId(id);
         Booking booking = bookingMapper.bookingDtoToBooking(bookingDto);
-        return bookingMapper.bookingToBookingDto(bookingService.addBooking(id, booking));
+        return bookingMapper.bookingToBookingDtoWithEntities(bookingService.addBooking(id, booking));
     }
 
     @GetMapping("/{bookingId}")
-    public BookingDto getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                 @PathVariable Long bookingId) {
-        return bookingMapper.bookingToBookingDto(bookingService.getBooking(userId, bookingId));
+    public BookingDtoWithEntities getBooking(@RequestHeader("X-Sharer-User-Id") Long userId,
+                                             @PathVariable Long bookingId) {
+        return bookingMapper.bookingToBookingDtoWithEntities(bookingService.getBooking(userId, bookingId));
     }
 
     @PatchMapping("/{bookingId}")
-    public BookingDto setBookingStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public BookingDtoWithEntities setBookingStatus(@RequestHeader("X-Sharer-User-Id") Long userId,
                                        @PathVariable Long bookingId,
                                        @RequestParam(value = "approved") boolean approved) {
-        return bookingMapper.bookingToBookingDto(bookingService.setBookingStatus(userId, bookingId, approved));
+        return bookingMapper.bookingToBookingDtoWithEntities(
+                bookingService.setBookingStatus(userId, bookingId, approved));
     }
 
     @GetMapping
-    public List<BookingDto> getAllUserBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDtoWithEntities> getAllUserBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                      @RequestParam(value = "state", defaultValue = "ALL")
                                                      String state) {
         return bookingService.getAllUserBookingsByState(userId, state).stream()
-                .map(x -> bookingMapper.bookingToBookingDto(x))
+                .map(bookingMapper::bookingToBookingDtoWithEntities)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/owner")
-    public List<BookingDto> getAllOwnerBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
+    public List<BookingDtoWithEntities> getAllOwnerBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
                                                       @RequestParam(value = "state", defaultValue = "ALL") String state) {
         return bookingService.getAllOwnerBookingsByState(userId, state).stream()
-                .map(value -> bookingMapper.bookingToBookingDto(value))
+                .map(bookingMapper::bookingToBookingDtoWithEntities)
                 .collect(Collectors.toList());
     }
 }
