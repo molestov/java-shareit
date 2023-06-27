@@ -9,6 +9,7 @@ public class UnknownIdException extends RuntimeException {
     public UnknownIdException(String s) {
         super(s);
     }
+
     public UnknownIdException() {
         super();
     }
