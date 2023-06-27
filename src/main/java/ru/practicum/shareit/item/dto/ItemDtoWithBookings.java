@@ -1,14 +1,16 @@
 package ru.practicum.shareit.item.dto;
+
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import ru.practicum.shareit.booking.dto.BookingDto;
-import ru.practicum.shareit.item.model.Comment;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class ItemDtoWithBookings {
@@ -20,5 +22,5 @@ public class ItemDtoWithBookings {
     private Long request;
     private BookingDto lastBooking;
     private BookingDto nextBooking;
-    private List<Comment> comments = new ArrayList<>();
+    private List<CommentDto> comments = new ArrayList<>();
 }

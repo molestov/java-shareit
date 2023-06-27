@@ -5,4 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Item is not available for booking")
 public class UnavailableItemException extends RuntimeException {
+    public UnavailableItemException(String s) {
+        super(s);
+    }
 }

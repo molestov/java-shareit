@@ -5,4 +5,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 
 @ResponseStatus(code = HttpStatus.BAD_REQUEST, reason = "Email cannot be empty")
 public class EmptyEmailException extends RuntimeException{
+    public EmptyEmailException(String s) {
+        super(s);
+    }
 }

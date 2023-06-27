@@ -1,23 +1,21 @@
-package ru.practicum.shareit.item.storage;
+package ru.practicum.shareit.item.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
-import org.springframework.stereotype.Repository;
 import ru.practicum.shareit.item.model.Item;
 
 import javax.persistence.Table;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 @Table(name = "items")
-public interface ItemStorage extends JpaRepository<Item, Long> {
+public interface ItemRepository extends JpaRepository<Item, Long> {
     Item save(Item item);
 
     Optional<Item> findById(Long id);
 
-    List<Item> findAllByOwnerOrderById(Long id);
+    List<Item> findAllByOwnerIdOrderById(Long id);
 
     boolean existsById(Long id);
 

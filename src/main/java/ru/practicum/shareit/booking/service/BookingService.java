@@ -3,79 +3,91 @@ package ru.practicum.shareit.booking.service;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.practicum.shareit.error.exception.EndBeforeStartException;
-import ru.practicum.shareit.error.exception.UnavailableItemException;
-import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingState;
 import ru.practicum.shareit.booking.model.BookingStatus;
-import ru.practicum.shareit.booking.storage.BookingStorage;
+import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.error.exception.BookingByOwnerException;
+import ru.practicum.shareit.error.exception.EndBeforeStartException;
 import ru.practicum.shareit.error.exception.IllegalUserException;
-import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.ItemStorage;
+import ru.practicum.shareit.error.exception.UnavailableItemException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.error.exception.WrongStateException;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
+import static ru.practicum.shareit.booking.repository.BookingSpecification.endAfterNow;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.endBeforeNow;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.hasBookerId;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.hasItemId;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.hasOwnerId;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.hasStatus;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.orderByStartDateAsc;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.orderByStartDateDesc;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.startAfterNow;
+import static ru.practicum.shareit.booking.repository.BookingSpecification.startBeforeNow;
 
 @Service
 @AllArgsConstructor
 public class BookingService {
     @Autowired
-    private final BookingStorage bookingStorage;
+    private final BookingRepository bookingRepository;
     @Autowired
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
     @Autowired
-    private final ItemStorage itemStorage;
+    private final ItemRepository itemRepository;
 
     public Booking addBooking(Long id, Booking booking) {
         if (!booking.getItem().getAvailable()) {
-            throw new UnavailableItemException();
+            throw new UnavailableItemException("Item is not available");
         }
         if (booking.getStart().after(booking.getEnd()) || booking.getStart().equals(booking.getEnd())) {
-            throw new EndBeforeStartException();
+            throw new EndBeforeStartException("Incorrect end date provided");
         }
-        if (Objects.equals(itemStorage.findById(booking.getItem().getId()).orElseThrow(UnknownIdException::new)
-                .getOwner(), id)) {
-            throw new BookingByOwnerException();
+        if (Objects.equals(itemRepository.findById(booking.getItem().getId()).orElseThrow(UnknownIdException::new)
+                .getOwner().getId(), id)) {
+            throw new BookingByOwnerException("Booking by owner attempt");
         }
         booking.setStatus(BookingStatus.WAITING);
-        return bookingStorage.save(booking);
+        return bookingRepository.save(booking);
     }
 
     public Booking getBooking(Long userId, Long bookingId) {
-        Booking booking = bookingStorage.findById(bookingId).orElseThrow(UnknownIdException::new);
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(UnknownIdException::new);
         if (!Objects.equals(userId, booking.getBooker().getId())) {
-            Item item = itemStorage.findById(booking.getItem().getId()).orElseThrow(UnknownIdException::new);
-            if (!Objects.equals(userId, item.getOwner())) {
-                throw new IllegalUserException();
+            Item item = itemRepository.findById(booking.getItem().getId()).orElseThrow(UnknownIdException::new);
+            if (!Objects.equals(userId, item.getOwner().getId())) {
+                throw new IllegalUserException("Wrong user id provided");
             }
         }
         return booking;
     }
 
     public Booking setBookingStatus(Long userId, Long bookingId, boolean approved) {
-        Booking booking = bookingStorage.findById(bookingId).orElseThrow(UnknownIdException::new);
-        if (!userStorage.existsById(userId)) {
-            throw new UnknownIdException();
+        Booking booking = bookingRepository.findById(bookingId).orElseThrow(UnknownIdException::new);
+        if (!userRepository.existsById(userId)) {
+            throw new UnknownIdException("Id not found");
         }
-        Item item = itemStorage.findById(booking.getItem().getId()).orElseThrow(UnknownIdException::new);
-        if (!userId.equals(item.getOwner())) {
-            throw new IllegalUserException();
+        Item item = itemRepository.findById(booking.getItem().getId()).orElseThrow(UnknownIdException::new);
+        if (!userId.equals(item.getOwner().getId())) {
+            throw new IllegalUserException("Wrong user id provided");
         }
         if (approved) {
             if (!booking.getStatus().equals(BookingStatus.APPROVED)) {
                 booking.setStatus(BookingStatus.APPROVED);
             } else {
-                throw new UnavailableItemException();
+                throw new UnavailableItemException("Booking already approved");
             }
         } else {
             booking.setStatus(BookingStatus.REJECTED);
         }
-        return bookingStorage.save(booking);
+        return bookingRepository.save(booking);
     }
 
     public List<Booking> getAllUserBookingsByState(Long userId, String state) {
@@ -83,35 +95,36 @@ public class BookingService {
         try {
             bookingState = BookingState.valueOf(state);
         } catch (Exception e) {
-            throw new WrongStateException("Unknown state: " + state, e);
+            throw new WrongStateException("Unknown state: " + state);
         }
-        if (!userStorage.existsById(userId)) {
-            throw new UnknownIdException();
+        if (!userRepository.existsById(userId)) {
+            throw new UnknownIdException("Id not found");
         }
         List<Booking> result = new ArrayList<>();
         switch (bookingState) {
             case ALL:
-                result = bookingStorage.getAllBookingsByBookerId(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(userId)));
                 break;
 
             case FUTURE:
-                result = bookingStorage.getAllFutureBookingsForBooker(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(userId)).and(startAfterNow()));
                 break;
 
             case CURRENT:
-                result = bookingStorage.getAllCurrentBookingsForBooker(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(userId).and(startBeforeNow()
+                        .and(endAfterNow()))));
                 break;
 
             case PAST:
-                result = bookingStorage.getAllPastBookingsForBooker(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(userId).and(endBeforeNow())));
                 break;
 
             case WAITING:
-                result = bookingStorage.getAllWaitingBookingsForBooker(userId);
+                result = bookingRepository.findAll(hasBookerId(userId).and(hasStatus(BookingStatus.WAITING)));
                 break;
 
             case REJECTED:
-                result = bookingStorage.getAllRejectedBookingsForBooker(userId);
+                result = bookingRepository.findAll(hasBookerId(userId).and(hasStatus(BookingStatus.REJECTED)));
                 break;
         }
         return result;
@@ -122,37 +135,55 @@ public class BookingService {
         try {
             bookingState = BookingState.valueOf(state);
         } catch (Exception e) {
-            throw new WrongStateException("Unknown state: " + state, e);
+            throw new WrongStateException("Unknown state: " + state);
         }
-        if (!userStorage.existsById(userId)) {
-            throw new UnknownIdException();
+        if (!userRepository.existsById(userId)) {
+            throw new UnknownIdException("Id not found");
         }
         List<Booking> result = new ArrayList<>();
         switch (bookingState) {
             case ALL:
-                result = bookingStorage.getAllBookingsByOwnerId(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(userId)));
                 break;
 
             case FUTURE:
-                result = bookingStorage.getAllFutureBookingsForOwner(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(userId)).and(startAfterNow()));
                 break;
 
             case CURRENT:
-                result = bookingStorage.getAllCurrentBookingsForOwner(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(userId).and(startBeforeNow()
+                        .and(endAfterNow()))));
                 break;
 
             case PAST:
-                result = bookingStorage.getAllPastBookingsForOwner(userId);
+                result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(userId).and(endBeforeNow())));
                 break;
 
             case WAITING:
-                result = bookingStorage.getAllWaitingBookingsForOwner(userId);
+                result = bookingRepository.findAll(hasOwnerId(userId).and(hasStatus(BookingStatus.WAITING)));
                 break;
 
             case REJECTED:
-                result = bookingStorage.getAllRejectedBookingsForOwner(userId);
+                result = bookingRepository.findAll(hasOwnerId(userId).and(hasStatus(BookingStatus.REJECTED)));
                 break;
         }
         return result;
+    }
+
+    public Optional<Booking> getLastBooking(Long itemId) {
+        List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasItemId(itemId).and(startBeforeNow())));
+        if (!result.isEmpty()) {
+            return Optional.of(result.get(0));
+        }
+        return Optional.empty();
+    }
+
+    public Optional<Booking> getNextBooking(Long itemId) {
+        List<Booking> result = bookingRepository.findAll(orderByStartDateAsc(hasItemId(itemId).and(startAfterNow()
+                .and(hasStatus(BookingStatus.APPROVED)))));
+        if (!result.isEmpty()) {
+            return Optional.of(result.get(0));
+        }
+        return Optional.empty();
     }
 }

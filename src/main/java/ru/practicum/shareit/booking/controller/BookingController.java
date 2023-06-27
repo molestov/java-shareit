@@ -15,6 +15,8 @@ import ru.practicum.shareit.booking.dto.BookingDtoWithEntities;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -25,11 +27,16 @@ import java.util.stream.Collectors;
 public class BookingController {
     private final BookingService bookingService;
     private final BookingMapper bookingMapper;
+    private final UserService userService;
+    private final ItemService itemService;
 
     @Autowired
-    public BookingController(BookingService bookingService, BookingMapper bookingMapper) {
+    public BookingController(BookingService bookingService, BookingMapper bookingMapper,
+                             UserService userService, ItemService itemService) {
         this.bookingService = bookingService;
         this.bookingMapper = bookingMapper;
+        this.userService = userService;
+        this.itemService = itemService;
     }
 
     @PostMapping
@@ -37,6 +44,8 @@ public class BookingController {
                                              @Valid @RequestBody BookingDto bookingDto) {
         bookingDto.setBookerId(id);
         Booking booking = bookingMapper.bookingDtoToBooking(bookingDto);
+        booking.setItem(itemService.getItemById(id, booking.getItem().getId()));
+        booking.setBooker(userService.getUser(booking.getBooker().getId()));
         return bookingMapper.bookingToBookingDtoWithEntities(bookingService.addBooking(id, booking));
     }
 
@@ -56,8 +65,7 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoWithEntities> getAllUserBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                     @RequestParam(value = "state", defaultValue = "ALL")
-                                                     String state) {
+                                         @RequestParam(value = "state", defaultValue = "ALL") String state) {
         return bookingService.getAllUserBookingsByState(userId, state).stream()
                 .map(bookingMapper::bookingToBookingDtoWithEntities)
                 .collect(Collectors.toList());

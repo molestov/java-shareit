@@ -10,7 +10,7 @@ import ru.practicum.shareit.error.exception.DuplicatedEmailException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.user.dto.UserDto;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
+import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.beans.FeatureDescriptor;
 import java.util.List;
@@ -19,30 +19,30 @@ import java.util.stream.Stream;
 @Service
 @EnableJpaRepositories
 public class UserService {
-    private final UserStorage userStorage;
+    private final UserRepository userRepository;
 
     @Autowired
-    public UserService(UserStorage userStorage) {
-        this.userStorage = userStorage;
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
     }
 
     public User addUser(User user) {
-        if (userStorage.findByEmail(user.getEmail()).isPresent()) {
-            throw new DuplicatedEmailException();
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicatedEmailException("Email already registered");
         }
-        return userStorage.save(user);
+        return userRepository.save(user);
     }
 
     public User updateUser(Long id, UserDto user) {
-        User userFromDb = userStorage.findById(id).orElseThrow(UnknownIdException::new);
+        User userFromDb = userRepository.findById(id).orElseThrow(UnknownIdException::new);
         if (user.getEmail() != null
                 && !user.getEmail().equals(userFromDb.getEmail())
-                && userStorage.findByEmail(user.getEmail()).isPresent()) {
-            throw new DuplicatedEmailException();
+                && userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new DuplicatedEmailException("Email already registered");
         }
         String[] ignoredProperties = getNullPropertyNames(user);
         BeanUtils.copyProperties(user, userFromDb, ignoredProperties);
-        return userStorage.save(userFromDb);
+        return userRepository.save(userFromDb);
     }
 
     private static String[] getNullPropertyNames(Object object) {
@@ -54,17 +54,17 @@ public class UserService {
     }
 
     public User getUser(Long id) {
-        if (!userStorage.existsById(id)) {
-            throw new UnknownIdException();
+        if (!userRepository.existsById(id)) {
+            throw new UnknownIdException("Id not found");
         }
-        return userStorage.findById(id).orElseThrow(UnknownIdException::new);
+        return userRepository.findById(id).orElseThrow(UnknownIdException::new);
     }
 
     public void removeUser(Long userId) {
-        userStorage.deleteById(userId);
+        userRepository.deleteById(userId);
     }
 
     public List<User> getAllUsers() {
-        return userStorage.findAll();
+        return userRepository.findAll();
     }
 }

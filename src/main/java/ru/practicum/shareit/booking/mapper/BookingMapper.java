@@ -3,25 +3,17 @@ package ru.practicum.shareit.booking.mapper;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
-import org.springframework.beans.factory.annotation.Autowired;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithEntities;
 import ru.practicum.shareit.booking.model.Booking;
-import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.storage.ItemStorage;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.storage.UserStorage;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Mapper(componentModel = "spring")
 public abstract class BookingMapper {
-    @Autowired
-    ItemStorage itemStorage;
-    @Autowired
-    UserStorage userStorage;
 
     @Mapping(source = "start", target = "start", qualifiedByName = "mapLdt")
     @Mapping(source = "end", target = "end", qualifiedByName = "mapLdt")
@@ -36,12 +28,16 @@ public abstract class BookingMapper {
 
     @Named("mapItem")
     protected Item mapItem(Long itemId) {
-        return itemStorage.findById(itemId).orElseThrow(UnknownIdException::new);
+        Item item = new Item();
+        item.setId(itemId);
+        return item;
     }
 
     @Named("mapUser")
     protected User mapUser(Long userId) {
-        return userStorage.findById(userId).orElseThrow(UnknownIdException::new);
+        User user = new User();
+        user.setId(userId);
+        return user;
     }
 
     @Named("mapLdt")
