@@ -1,4 +1,4 @@
-package ru.practicum.shareit.item.model;
+package ru.practicum.shareit.error.model;
 
 public class ErrorResponse {
     private final String error;

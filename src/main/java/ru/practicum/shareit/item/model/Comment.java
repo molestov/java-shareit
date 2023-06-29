@@ -1,11 +1,12 @@
 package ru.practicum.shareit.item.model;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -14,28 +15,27 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.persistence.Transient;
-import java.util.List;
+import java.sql.Timestamp;
 
 @Getter
 @Setter
 @NoArgsConstructor
+@AllArgsConstructor
 @Entity
-@Table(name = "items", schema = "public")
-public class Item {
+@Table(name = "comments", schema = "public")
+public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String name;
-    private String description;
-    private Boolean available;
+    @Column(name = "text")
+    private String text;
     @ManyToOne
-    @JoinColumn(name = "owner")
-    private User owner;
+    @JoinColumn(name = "item_id")
+    private Item item;
     @ManyToOne
-    @JoinColumn(name = "request")
-    private ItemRequest request;
+    @JoinColumn(name = "author_id")
+    private User author;
     @Transient
-    private List<Comment> comments;
-    @Transient
-    private boolean ownerRequest;
+    private String authorName;
+    private Timestamp created;
 }
