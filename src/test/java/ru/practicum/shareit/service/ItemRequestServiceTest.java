@@ -39,7 +39,7 @@ public class ItemRequestServiceTest {
     private User user;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         itemRequest = new ItemRequest();
         itemRequest.setId(1L);
         itemRequest.setRequestor(createUser());

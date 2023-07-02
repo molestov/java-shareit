@@ -94,7 +94,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void addItemTest() throws Exception{
+    void addItemTest() throws Exception {
         when(itemMapper.toItem(any(ItemDto.class)))
                 .thenReturn(item);
         when(itemService.addItem(anyLong(), any(Item.class)))
@@ -114,7 +114,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void updateItemTest() throws Exception{
+    void updateItemTest() throws Exception {
         when(itemService.updateItem(anyLong(), anyLong(), any(ItemDto.class)))
                 .thenReturn(item);
         when(itemMapper.toItemDto(any(Item.class)))
@@ -132,7 +132,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemTest() throws Exception{
+    void getItemTest() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenReturn(item);
         when(itemMapper.toItemDtoWithBookings(any(Item.class)))
@@ -149,7 +149,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemTestWithError() throws Exception{
+    void getItemTestWithError() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenThrow(new UnknownIdException("Item not found"));
 
@@ -163,7 +163,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemTestWithErrorWithNoMessage() throws Exception{
+    void getItemTestWithErrorWithNoMessage() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenThrow(new UnknownIdException());
 
@@ -177,7 +177,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void getItemsByOwnerTest() throws Exception{
+    void getItemsByOwnerTest() throws Exception {
         when(itemService.getItemsByOwnerId(anyLong(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Item>());
 
@@ -191,7 +191,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void searchByKeywordTest() throws Exception{
+    void searchByKeywordTest() throws Exception {
         when(itemService.findItemsByKeyword(anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Item>());
 
@@ -205,7 +205,7 @@ public class ItemControllerTest {
     }
 
     @Test
-    void testAddComment() throws Exception{
+    void testAddComment() throws Exception {
         when(itemMapper.toComment(any(CommentDto.class)))
                 .thenReturn(comment);
         when(itemService.addComment(anyLong(), anyLong(), any(Comment.class)))

@@ -35,7 +35,7 @@ public class ItemRequestService {
             throw new UnknownIdException("User not found");
         }
         List<ItemRequest> result = requestRepository.findAllByRequestorId(id);
-        if(result != null) {
+        if (result != null) {
             return result;
         }
         return new ArrayList<>();

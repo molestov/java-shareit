@@ -75,7 +75,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testAddUser() throws Exception{
+    void testAddUser() throws Exception {
         when(userMapper.toUser(any(UserDto.class)))
                 .thenReturn(user);
         when(userService.addUser(any(User.class)))
@@ -94,7 +94,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testAddUserWithEmptyName() throws Exception{
+    void testAddUserWithEmptyName() throws Exception {
         when(userMapper.toUser(any(UserDto.class)))
                 .thenReturn(user);
         when(userService.addUser(any(User.class)))
@@ -110,7 +110,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testAddUserWithEmptyEmail() throws Exception{
+    void testAddUserWithEmptyEmail() throws Exception {
         when(userMapper.toUser(any(UserDto.class)))
                 .thenReturn(user);
         when(userService.addUser(any(User.class)))
@@ -126,7 +126,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testAddUserWithDuplicateEmail() throws Exception{
+    void testAddUserWithDuplicateEmail() throws Exception {
         when(userMapper.toUser(any(UserDto.class)))
                 .thenReturn(user);
         when(userService.addUser(any(User.class)))
@@ -142,7 +142,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateUser() throws Exception{
+    void testUpdateUser() throws Exception {
         when(userService.updateUser(anyLong(), any(UserDto.class)))
                 .thenReturn(user);
         when(userMapper.toUserDto(any(User.class)))
@@ -159,7 +159,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testUpdateUserWithError() throws Exception{
+    void testUpdateUserWithError() throws Exception {
         when(userService.updateUser(anyLong(), any(UserDto.class)))
                 .thenThrow(new IllegalUserException("Example"));
 
@@ -173,7 +173,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testGetUser() throws Exception{
+    void testGetUser() throws Exception {
         when(userService.getUser(anyLong()))
                 .thenReturn(user);
         when(userMapper.toUserDto(any(User.class)))
@@ -189,7 +189,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testGetAllUsers() throws Exception{
+    void testGetAllUsers() throws Exception {
         when(userService.getAllUsers())
                 .thenReturn(new ArrayList<User>());
 
@@ -202,7 +202,7 @@ public class UserControllerTest {
     }
 
     @Test
-    void testDeleteUser() throws Exception{
+    void testDeleteUser() throws Exception {
         mvc.perform(delete("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)

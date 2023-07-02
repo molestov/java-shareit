@@ -229,7 +229,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void TestGetAllUserBookingsByState() throws Exception {
+    void testGetAllUserBookingsByState() throws Exception {
         when(bookingService.getAllUserBookingsByState(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Booking>());
         when(bookingMapper.toListDtoWithEntities(anyList()))
@@ -245,7 +245,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void TestGetAllOwnerBookingsByState() throws Exception {
+    void testGetAllOwnerBookingsByState() throws Exception {
         when(bookingService.getAllOwnerBookingsByState(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Booking>());
         when(bookingMapper.toListDtoWithEntities(anyList()))

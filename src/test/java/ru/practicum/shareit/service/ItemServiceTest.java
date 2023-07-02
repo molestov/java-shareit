@@ -51,7 +51,7 @@ public class ItemServiceTest {
     private ItemDto itemDto;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         item = createItem();
         user = createUser();
         item.setOwner(user);

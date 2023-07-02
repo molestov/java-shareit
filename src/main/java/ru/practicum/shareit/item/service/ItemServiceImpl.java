@@ -139,7 +139,7 @@ public class ItemServiceImpl implements ItemService {
     @Override
     public List<Item> getItemsByRequest(Long id, Pageable pageable) {
         List<Item> result = itemRepository.findAllByRequestId(id, pageable);
-        if(result != null) {
+        if (result != null) {
             return result;
         }
         return new ArrayList<>();

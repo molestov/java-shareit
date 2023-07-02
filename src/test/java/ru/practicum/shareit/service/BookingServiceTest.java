@@ -51,7 +51,7 @@ public class BookingServiceTest {
     private Item item;
 
     @BeforeEach
-    public void setup(){
+    public void setup() {
         booking = createBooking();
         user = createUser();
         item = createItem();
