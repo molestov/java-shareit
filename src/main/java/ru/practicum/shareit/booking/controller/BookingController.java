@@ -10,24 +10,33 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithEntities;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
+import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(path = "/bookings")
 public class BookingController {
+
+    @Autowired
     private final BookingService bookingService;
+
+    @Autowired
     private final BookingMapper bookingMapper;
+
+    @Autowired
     private final UserService userService;
+
+    @Autowired
     private final ItemService itemService;
 
     @Autowired
@@ -65,17 +74,31 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoWithEntities> getAllUserBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        return bookingService.getAllUserBookingsByState(userId, state).stream()
-                .map(bookingMapper::bookingToBookingDtoWithEntities)
-                .collect(Collectors.toList());
+                                         @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                         @RequestParam(value = "from", defaultValue = "0") int from,
+                                         @RequestParam(value = "size", defaultValue = "9999") int size) {
+        if (from < 0) {
+            throw new WrongStateException("From cannot be less then 0");
+        }
+        if (size < 1) {
+            throw new WrongStateException("Size cannot be less then 1");
+        }
+        return bookingMapper.toListDtoWithEntities(bookingService.getAllUserBookingsByState(userId, state,
+                new OffsetBasedPageRequest(from, size)));
     }
 
     @GetMapping("/owner")
     public List<BookingDtoWithEntities> getAllOwnerBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        return bookingService.getAllOwnerBookingsByState(userId, state).stream()
-                .map(bookingMapper::bookingToBookingDtoWithEntities)
-                .collect(Collectors.toList());
+                                                @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                @RequestParam(value = "from", defaultValue = "0") int from,
+                                                @RequestParam(value = "size", defaultValue = "9999") int size) {
+        if (from < 0) {
+            throw new WrongStateException("From cannot be less then 0");
+        }
+        if (size < 1) {
+            throw new WrongStateException("Size cannot be less then 1");
+        }
+        return bookingMapper.toListDtoWithEntities(bookingService.getAllOwnerBookingsByState(userId, state,
+                new OffsetBasedPageRequest(from, size)));
     }
 }

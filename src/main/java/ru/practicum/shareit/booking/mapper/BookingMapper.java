@@ -11,6 +11,7 @@ import ru.practicum.shareit.user.model.User;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Mapper(componentModel = "spring")
 public abstract class BookingMapper {
@@ -25,6 +26,8 @@ public abstract class BookingMapper {
 
     @Mapping(source = "booker", target = "bookerId", qualifiedByName = "mapLong")
     public abstract BookingDto toBookingDto(Booking booking);
+
+    public abstract List<BookingDtoWithEntities> toListDtoWithEntities(List<Booking> bookings);
 
     @Named("mapItem")
     protected Item mapItem(Long itemId) {

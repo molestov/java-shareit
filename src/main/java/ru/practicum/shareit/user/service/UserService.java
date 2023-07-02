@@ -4,7 +4,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exception.DuplicatedEmailException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
@@ -17,7 +16,6 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
-@EnableJpaRepositories
 public class UserService {
     private final UserRepository userRepository;
 

@@ -25,17 +25,24 @@ public class Item {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String name;
+
     private String description;
+
     private Boolean available;
+
     @ManyToOne
     @JoinColumn(name = "owner")
     private User owner;
+
     @ManyToOne
     @JoinColumn(name = "request")
     private ItemRequest request;
+
     @Transient
     private List<Comment> comments;
+
     @Transient
     private boolean ownerRequest;
 }

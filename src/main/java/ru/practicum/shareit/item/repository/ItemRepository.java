@@ -1,5 +1,6 @@
 package ru.practicum.shareit.item.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -15,11 +16,13 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
 
     Optional<Item> findById(Long id);
 
-    List<Item> findAllByOwnerIdOrderById(Long id);
+    List<Item> findAllByOwnerIdOrderById(Long id, Pageable pageable);
+
+    List<Item> findAllByRequestId(Long id, Pageable pageable);
 
     boolean existsById(Long id);
 
     @Query(value = "select * from items where lower(name) like concat('%',lower(:keyword),'%') or lower(description) " +
             "like concat('%',lower(:keyword),'%') and available=true", nativeQuery = true)
-    List<Item> findItemsByKeyword(@Param("keyword") String keyword);
+    List<Item> findItemsByKeyword(@Param("keyword") String keyword, Pageable pageable);
 }
