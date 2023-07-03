@@ -12,7 +12,6 @@ import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
-import ru.practicum.shareit.error.exception.DuplicatedEmailException;
 import ru.practicum.shareit.error.exception.EmptyNameException;
 import ru.practicum.shareit.error.exception.IllegalUserException;
 import ru.practicum.shareit.error.exception.UnavailableItemException;
