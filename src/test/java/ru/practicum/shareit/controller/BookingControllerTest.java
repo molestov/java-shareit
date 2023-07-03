@@ -36,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -245,6 +246,34 @@ public class BookingControllerTest {
     }
 
     @Test
+    void testGetAllUserBookingsByStateWithError() throws Exception {
+
+        mvc.perform(get("/bookings/?from=-1&size=1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("From cannot be less then 0",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void testGetAllUserBookingsByStateWithError2() throws Exception {
+
+        mvc.perform(get("/bookings/?from=0&size=0")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Size cannot be less then 1",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
     void testGetAllOwnerBookingsByState() throws Exception {
         when(bookingService.getAllOwnerBookingsByState(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Booking>());
@@ -258,6 +287,34 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+    }
+
+    @Test
+    void testGetAllOwnerBookingsByStateWithError() throws Exception {
+
+        mvc.perform(get("/bookings/owner/?from=-1&size=1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("From cannot be less then 0",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void testGetAllOwnerBookingsByStateWithError2() throws Exception {
+
+        mvc.perform(get("/bookings/owner/?from=0&size=0")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Size cannot be less then 1",
+                        result.getResolvedException().getMessage()));
     }
 
     private Booking createBooking() {
