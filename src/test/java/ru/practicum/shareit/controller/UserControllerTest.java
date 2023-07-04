@@ -6,8 +6,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -41,8 +43,8 @@ public class UserControllerTest {
     @InjectMocks
     UserController userController;
 
-    @Mock
-    UserMapper userMapper;
+    @Spy
+    UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Mock
     UserService userService;
@@ -76,12 +78,8 @@ public class UserControllerTest {
 
     @Test
     void testAddUser() throws Exception {
-        when(userMapper.toUser(any(UserDto.class)))
-                .thenReturn(user);
         when(userService.addUser(any(User.class)))
                 .thenReturn(user);
-        when(userMapper.toUserDto(any(User.class)))
-                .thenReturn(userDto);
 
         mvc.perform(post("/users")
                         .content(mapper.writeValueAsString(userDto))
@@ -95,8 +93,6 @@ public class UserControllerTest {
 
     @Test
     void testAddUserWithEmptyName() throws Exception {
-        when(userMapper.toUser(any(UserDto.class)))
-                .thenReturn(user);
         when(userService.addUser(any(User.class)))
                 .thenThrow(new EmptyNameException("Example"));
 
@@ -111,8 +107,6 @@ public class UserControllerTest {
 
     @Test
     void testAddUserWithEmptyEmail() throws Exception {
-        when(userMapper.toUser(any(UserDto.class)))
-                .thenReturn(user);
         when(userService.addUser(any(User.class)))
                 .thenThrow(new EmptyEmailException("Example"));
 
@@ -127,8 +121,6 @@ public class UserControllerTest {
 
     @Test
     void testAddUserWithDuplicateEmail() throws Exception {
-        when(userMapper.toUser(any(UserDto.class)))
-                .thenReturn(user);
         when(userService.addUser(any(User.class)))
                 .thenThrow(new DuplicatedEmailException("Example"));
 
@@ -145,8 +137,6 @@ public class UserControllerTest {
     void testUpdateUser() throws Exception {
         when(userService.updateUser(anyLong(), any(UserDto.class)))
                 .thenReturn(user);
-        when(userMapper.toUserDto(any(User.class)))
-                .thenReturn(userDto);
 
         mvc.perform(patch("/users/1")
                         .content(mapper.writeValueAsString(userDto))
@@ -176,8 +166,6 @@ public class UserControllerTest {
     void testGetUser() throws Exception {
         when(userService.getUser(anyLong()))
                 .thenReturn(user);
-        when(userMapper.toUserDto(any(User.class)))
-                .thenReturn(userDto);
 
         mvc.perform(get("/users/1")
                         .characterEncoding(StandardCharsets.UTF_8)

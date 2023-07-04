@@ -112,7 +112,7 @@ public class ItemController {
         return itemMapper.toCommentDto(itemService.addComment(id, itemId, itemMapper.toComment(comment)));
     }
 
-    private ItemDtoWithBookings setBookings(ItemDtoWithBookings itemDtoWithBookings) {
+    public ItemDtoWithBookings setBookings(ItemDtoWithBookings itemDtoWithBookings) {
             Optional<Booking> lastBooking = bookingService.getLastBooking(itemDtoWithBookings.getId());
             Optional<Booking> nextBooking = bookingService.getNextBooking(itemDtoWithBookings.getId());
             if (lastBooking.isPresent()) {

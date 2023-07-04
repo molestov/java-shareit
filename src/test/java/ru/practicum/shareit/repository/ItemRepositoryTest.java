@@ -1,0 +1,94 @@
+package ru.practicum.shareit.repository;
+
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import ru.practicum.shareit.OffsetBasedPageRequest;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.model.BookingStatus;
+import ru.practicum.shareit.item.model.Comment;
+import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.repository.CommentRepository;
+import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.user.model.User;
+
+import java.sql.Timestamp;
+import java.time.Instant;
+import java.util.List;
+
+@ExtendWith(SpringExtension.class)
+@DataJpaTest
+public class ItemRepositoryTest {
+    @Autowired
+    ItemRepository itemRepository;
+
+    @Autowired
+    CommentRepository commentRepository;
+
+    Item item;
+
+    Comment comment;
+
+    @Test
+    public void testCreateItem() {
+        item = createItem();
+        item.setOwner(createUser());
+        Item result = itemRepository.save(item);
+
+        Assertions.assertEquals(result.getId(), 1L);
+    }
+
+    @Test
+    public void testGetItem() {
+        item = itemRepository.findById(1L).get();
+        Assertions.assertEquals(item.getId(), 1L);
+    }
+
+    @Test
+    public void testGetItemsByOwnerId() {
+        List<Item> result = itemRepository.findAllByOwnerIdOrderById(1L, new OffsetBasedPageRequest(0, 9999));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void testFindItemsByKeyword() {
+        List<Item> result = itemRepository.findItemsByKeyword("аккумуляторная",
+                new OffsetBasedPageRequest(0, 9999));
+        Assertions.assertNotNull(result);
+    }
+
+    @Test
+    public void testGetItemsByRequest() {
+        List<Item> result = itemRepository.findAllByRequestId(1L, new OffsetBasedPageRequest(0, 9999));
+        Assertions.assertNotNull(result);
+    }
+
+    private Booking createBooking() {
+        Booking booking = new Booking();
+        booking.setId(1L);
+        booking.setStatus(BookingStatus.WAITING);
+        booking.setStart(Timestamp.from(Instant.now()));
+        booking.setEnd(Timestamp.from(Instant.now().plusSeconds(3600)));
+        return booking;
+    }
+
+    protected User createUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("Example");
+        user.setEmail("examle@example.com");
+        return user;
+    }
+
+    private Item createItem() {
+        Item item = new Item();
+        item.setId(1L);
+        item.setName("Example");
+        item.setDescription("Example text");
+        item.setAvailable(true);
+        return item;
+    }
+}

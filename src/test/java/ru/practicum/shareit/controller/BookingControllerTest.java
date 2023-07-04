@@ -6,8 +6,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
@@ -39,7 +41,6 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
@@ -54,8 +55,8 @@ public class BookingControllerTest {
     @Mock
     private BookingService bookingService;
 
-    @Mock
-    private BookingMapper bookingMapper;
+    @Spy
+    private BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
 
     @Mock
     private ItemService itemService;
@@ -107,12 +108,8 @@ public class BookingControllerTest {
 
     @Test
     void addBookingTestShouldReturn200() throws Exception {
-        when(bookingMapper.bookingDtoToBooking(any(BookingDto.class)))
-                .thenReturn(booking);
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenReturn(booking);
-        when(bookingMapper.bookingToBookingDtoWithEntities(any(Booking.class)))
-                .thenReturn(bookingDtoWithEntities);
 
         mvc.perform(post("/bookings")
                         .content(mapper.writeValueAsString(bookingDto))
@@ -127,8 +124,6 @@ public class BookingControllerTest {
 
     @Test
     void addBookingTestShouldReturn400() throws Exception {
-        when(bookingMapper.bookingDtoToBooking(any(BookingDto.class)))
-                .thenReturn(booking);
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenThrow(new WrongStateException("Illegal user"));
 
@@ -144,8 +139,6 @@ public class BookingControllerTest {
 
     @Test
     void addBookingTestWithError() throws Exception {
-        when(bookingMapper.bookingDtoToBooking(any(BookingDto.class)))
-                .thenReturn(booking);
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenThrow(new UnavailableItemException("Example"));
 
@@ -161,8 +154,6 @@ public class BookingControllerTest {
 
     @Test
     void addBookingTestWithErrorOwnerBooked() throws Exception {
-        when(bookingMapper.bookingDtoToBooking(any(BookingDto.class)))
-                .thenReturn(booking);
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenThrow(new BookingByOwnerException("Example"));
 
@@ -178,8 +169,6 @@ public class BookingControllerTest {
 
     @Test
     void addBookingTestWithErrorEndBeforeStart() throws Exception {
-        when(bookingMapper.bookingDtoToBooking(any(BookingDto.class)))
-                .thenReturn(booking);
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenThrow(new EndBeforeStartException("Example"));
 
@@ -197,8 +186,6 @@ public class BookingControllerTest {
     void testGetBookingShouldReturn200() throws Exception {
         when(bookingService.getBooking(anyLong(), anyLong()))
                 .thenReturn(booking);
-        when(bookingMapper.bookingToBookingDtoWithEntities(any(Booking.class)))
-                .thenReturn(bookingDtoWithEntities);
 
         mvc.perform(get("/bookings/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -216,8 +203,6 @@ public class BookingControllerTest {
         bookingDtoWithEntities.setStatus(BookingStatus.APPROVED);
         when(bookingService.setBookingStatus(anyLong(), anyLong(), anyBoolean()))
                 .thenReturn(booking);
-        when(bookingMapper.bookingToBookingDtoWithEntities(any(Booking.class)))
-                .thenReturn(bookingDtoWithEntities);
 
         mvc.perform(patch("/bookings/1/?approved=true")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -233,8 +218,6 @@ public class BookingControllerTest {
     void testGetAllUserBookingsByState() throws Exception {
         when(bookingService.getAllUserBookingsByState(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Booking>());
-        when(bookingMapper.toListDtoWithEntities(anyList()))
-                .thenReturn(new ArrayList<BookingDtoWithEntities>());
 
         mvc.perform(get("/bookings/")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -277,8 +260,6 @@ public class BookingControllerTest {
     void testGetAllOwnerBookingsByState() throws Exception {
         when(bookingService.getAllOwnerBookingsByState(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Booking>());
-        when(bookingMapper.toListDtoWithEntities(anyList()))
-                .thenReturn(new ArrayList<BookingDtoWithEntities>());
 
         mvc.perform(get("/bookings/owner")
                         .characterEncoding(StandardCharsets.UTF_8)

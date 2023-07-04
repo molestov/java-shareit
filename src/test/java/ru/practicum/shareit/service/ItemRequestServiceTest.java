@@ -7,6 +7,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import ru.practicum.shareit.error.exception.IllegalUserException;
+import ru.practicum.shareit.error.exception.UnknownIdException;
+import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.RequestRepository;
@@ -18,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -66,6 +71,44 @@ public class ItemRequestServiceTest {
 
         List<ItemRequest> savedItemRequest = itemRequestService.getAllRequests(1L);
         Assertions.assertNotNull(savedItemRequest);
+    }
+
+    @Test
+    void testGetAllRequestsWithError1() {
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(false);
+
+        UnknownIdException exception = assertThrows(UnknownIdException.class,
+                () -> itemRequestService.getAllRequests(1L));
+
+        assertEquals("User not found", exception.getMessage());
+    }
+
+    @Test
+    void testGetRequestWithError() {
+        when(userRepository.existsById(anyLong()))
+                .thenReturn(false);
+
+        IllegalUserException exception = assertThrows(IllegalUserException.class,
+                () -> itemRequestService.getRequest(1L, 1L));
+
+        assertEquals("No such user", exception.getMessage());
+    }
+
+    @Test
+    void testGetAllRequestsWithPagesWithError1() {
+        WrongStateException exception = assertThrows(WrongStateException.class,
+                () -> itemRequestService.getAllRequestsWithPages(1L, -1, 1));
+
+        assertEquals("From cannot be less then 0", exception.getMessage());
+    }
+
+    @Test
+    void testGetAllRequestsWithPagesWithError2() {
+        WrongStateException exception = assertThrows(WrongStateException.class,
+                () -> itemRequestService.getAllRequestsWithPages(1L, 0, 0));
+
+        assertEquals("Size cannot be less then 1", exception.getMessage());
     }
 
     @Test

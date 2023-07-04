@@ -181,6 +181,37 @@ public class ItemServiceTest {
     }
 
     @Test
+    void testGetItemById_OwnerRequest() {
+        item.setOwner(user);
+        when(itemRepository.findById(anyLong()))
+                .thenReturn(Optional.of(item));
+
+        Item savedItem = itemService.getItemById(1L, 1L);
+
+        Assertions.assertEquals(savedItem.getId(), 1L);
+    }
+
+    @Test
+    void testGetItemByRequest() {
+        when(itemRepository.findAllByRequestId(anyLong(), any(Pageable.class)))
+                .thenReturn(new ArrayList<>());
+
+        List<Item> savedItems = itemService.getItemsByRequest(1L, new OffsetBasedPageRequest(0, 9999));
+
+        Assertions.assertNotNull(savedItems);
+    }
+
+    @Test
+    void testGetItemByRequest_NotFound() {
+        when(itemRepository.findAllByRequestId(anyLong(), any(Pageable.class)))
+                .thenReturn(null);
+
+        List<Item> savedItems = itemService.getItemsByRequest(1L, new OffsetBasedPageRequest(0, 9999));
+
+        Assertions.assertNotNull(savedItems);
+    }
+
+    @Test
     void testGetItemByIdWithError() {
         when(itemRepository.findById(anyLong()))
                 .thenReturn(Optional.empty());
@@ -207,6 +238,13 @@ public class ItemServiceTest {
                 .thenReturn(new ArrayList<Item>());
 
         List<Item> savedItem = itemService.findItemsByKeyword("example", new OffsetBasedPageRequest(0, 9999));
+
+        Assertions.assertNotNull(savedItem);
+    }
+
+    @Test
+    void testGetItemsByKeyword_EmptyKeyword() {
+        List<Item> savedItem = itemService.findItemsByKeyword("", new OffsetBasedPageRequest(0, 9999));
 
         Assertions.assertNotNull(savedItem);
     }

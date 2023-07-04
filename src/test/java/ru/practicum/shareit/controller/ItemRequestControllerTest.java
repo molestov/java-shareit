@@ -6,8 +6,10 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
@@ -26,7 +28,6 @@ import java.util.ArrayList;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -39,8 +40,8 @@ public class ItemRequestControllerTest {
     @InjectMocks
     ItemRequestController itemRequestController;
 
-    @Mock
-    ItemRequestMapper itemRequestMapper;
+    @Spy
+    ItemRequestMapper itemRequestMapper = Mappers.getMapper(ItemRequestMapper.class);
 
     @Mock
     ItemRequestService itemRequestService;
@@ -48,8 +49,8 @@ public class ItemRequestControllerTest {
     @Mock
     ItemService itemService;
 
-    @Mock
-    ItemMapper itemMapper;
+    @Spy
+    ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
 
     private ItemRequest itemRequest;
 
@@ -78,12 +79,8 @@ public class ItemRequestControllerTest {
 
     @Test
     void testItemRequest() throws Exception {
-        when(itemRequestMapper.toItemRequest(any(ItemRequestDto.class)))
-                .thenReturn(itemRequest);
         when(itemRequestService.addItemRequest(anyLong(), any(ItemRequest.class)))
                 .thenReturn(itemRequest);
-        when(itemRequestMapper.toItemRequestDto(any(ItemRequest.class)))
-                .thenReturn(itemRequestDto);
 
         mvc.perform(post("/requests")
                         .content(mapper.writeValueAsString(itemRequestDto))
@@ -100,8 +97,6 @@ public class ItemRequestControllerTest {
     void testGetAllRequests() throws Exception {
         when(itemRequestService.getAllRequests(anyLong()))
                 .thenReturn(new ArrayList<ItemRequest>());
-        when(itemRequestMapper.toListDto(anyList()))
-                .thenReturn(new ArrayList<ItemRequestDto>());
 
         mvc.perform(get("/requests")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -116,8 +111,6 @@ public class ItemRequestControllerTest {
     void testGetAllRequestsWithParameters() throws Exception {
         when(itemRequestService.getAllRequestsWithPages(anyLong(), anyInt(), anyInt()))
                 .thenReturn(new ArrayList<ItemRequest>());
-        when(itemRequestMapper.toListDto(anyList()))
-                .thenReturn(new ArrayList<ItemRequestDto>());
 
         mvc.perform(get("/requests/all")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -132,8 +125,6 @@ public class ItemRequestControllerTest {
     void testGetRequest() throws Exception {
         when(itemRequestService.getRequest(anyLong(), anyLong()))
                 .thenReturn(itemRequest);
-        when(itemRequestMapper.toItemRequestDto(any(ItemRequest.class)))
-                .thenReturn(itemRequestDto);
 
         mvc.perform(get("/requests/1")
                         .characterEncoding(StandardCharsets.UTF_8)

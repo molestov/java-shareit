@@ -3,16 +3,23 @@ package ru.practicum.shareit.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mapstruct.factory.Mappers;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import ru.practicum.shareit.booking.dto.BookingDto;
+import ru.practicum.shareit.booking.mapper.BookingMapper;
+import ru.practicum.shareit.booking.model.Booking;
+import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.item.controller.ItemController;
 import ru.practicum.shareit.item.dto.CommentDto;
@@ -22,11 +29,14 @@ import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.user.model.User;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -43,7 +53,13 @@ public class ItemControllerTest {
     ItemService itemService;
 
     @Mock
-    ItemMapper itemMapper;
+    BookingService bookingService;
+
+    @Spy
+    ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
+
+    @Spy
+    BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
 
     @InjectMocks
     ItemController itemController;
@@ -87,6 +103,9 @@ public class ItemControllerTest {
 
         comment = new Comment();
         comment.setId(1L);
+        comment.setText("Example");
+        comment.setItem(item);
+        comment.setAuthor(createUser());
 
         commentDto = new CommentDto();
         commentDto.setId(1L);
@@ -95,12 +114,8 @@ public class ItemControllerTest {
 
     @Test
     void addItemTest() throws Exception {
-        when(itemMapper.toItem(any(ItemDto.class)))
-                .thenReturn(item);
         when(itemService.addItem(anyLong(), any(Item.class)))
                 .thenReturn(item);
-        when(itemMapper.toItemDto(any(Item.class)))
-                .thenReturn(itemDto);
 
         mvc.perform(post("/items")
                         .content(mapper.writeValueAsString(itemDto))
@@ -117,8 +132,6 @@ public class ItemControllerTest {
     void updateItemTest() throws Exception {
         when(itemService.updateItem(anyLong(), anyLong(), any(ItemDto.class)))
                 .thenReturn(item);
-        when(itemMapper.toItemDto(any(Item.class)))
-                .thenReturn(itemDto);
 
         mvc.perform(patch("/items/1")
                         .content(mapper.writeValueAsString(itemDto))
@@ -135,8 +148,6 @@ public class ItemControllerTest {
     void getItemTest() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
                 .thenReturn(item);
-        when(itemMapper.toItemDtoWithBookings(any(Item.class)))
-                .thenReturn(itemDtoWithBookings);
 
         mvc.perform(get("/items/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -191,6 +202,34 @@ public class ItemControllerTest {
     }
 
     @Test
+    void getItemsByOwnerTestWithError1() throws Exception {
+
+        mvc.perform(get("/items/?from=-1")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("From cannot be less then 0",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
+    void getItemsByOwnerTestWithError2() throws Exception {
+
+        mvc.perform(get("/items/?size=0")
+                        .characterEncoding(StandardCharsets.UTF_8)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Sharer-User-Id", 1)
+                        .accept(MediaType.APPLICATION_JSON))
+
+                .andExpect(status().isBadRequest())
+                .andExpect(result -> assertEquals("Size cannot be less then 1",
+                        result.getResolvedException().getMessage()));
+    }
+
+    @Test
     void searchByKeywordTest() throws Exception {
         when(itemService.findItemsByKeyword(anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Item>());
@@ -206,12 +245,10 @@ public class ItemControllerTest {
 
     @Test
     void testAddComment() throws Exception {
-        when(itemMapper.toComment(any(CommentDto.class)))
-                .thenReturn(comment);
         when(itemService.addComment(anyLong(), anyLong(), any(Comment.class)))
                 .thenReturn(comment);
-        when(itemMapper.toCommentDto(any(Comment.class)))
-                .thenReturn(commentDto);
+        //when(itemMapper.toCommentDto(any(Comment.class)))
+                //.thenReturn(commentDto);
 
         mvc.perform(post("/items/1/comment")
                         .content(mapper.writeValueAsString(commentDto))
@@ -223,6 +260,30 @@ public class ItemControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id", is(commentDto.getId()), Long.class))
                 .andExpect(jsonPath("$.text", is(commentDto.getText()), String.class));
+    }
+
+    @Test
+    void testSetBookings() {
+        ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();
+        itemDtoWithBookings.setId(1L);
+        when(bookingService.getLastBooking(anyLong()))
+                .thenReturn(Optional.of(new Booking()));
+        when(bookingService.getNextBooking(anyLong()))
+                .thenReturn(Optional.of(new Booking()));
+        when(bookingMapper.toBookingDto(any(Booking.class)))
+                .thenReturn(new BookingDto());
+
+        ItemDtoWithBookings savedBooking = itemController.setBookings(itemDtoWithBookings);
+
+        Assertions.assertNotNull(savedBooking);
+    }
+
+    protected User createUser() {
+        User user = new User();
+        user.setId(1L);
+        user.setName("Example");
+        user.setEmail("examle@example.com");
+        return user;
     }
 
 
