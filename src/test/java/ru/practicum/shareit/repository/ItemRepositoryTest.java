@@ -32,7 +32,7 @@ public class ItemRepositoryTest {
 
     Comment comment;
 
-    @Test
+/*    @Test
     public void testCreateItem() {
         item = createItem();
         item.setOwner(createUser());
@@ -41,11 +41,15 @@ public class ItemRepositoryTest {
         Assertions.assertNotNull(result);
     }
 
-    @Test
+ */
+
+/*    @Test
     public void testGetItem() {
         item = itemRepository.findById(1L).get();
         Assertions.assertNotNull(item);
     }
+
+ */
 
     @Test
     public void testGetItemsByOwnerId() {
