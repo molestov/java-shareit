@@ -27,9 +27,7 @@ import ru.practicum.shareit.error.exception.EndBeforeStartException;
 import ru.practicum.shareit.error.exception.UnavailableItemException;
 import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
-import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
