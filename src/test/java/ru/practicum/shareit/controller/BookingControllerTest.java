@@ -27,7 +27,9 @@ import ru.practicum.shareit.error.exception.EndBeforeStartException;
 import ru.practicum.shareit.error.exception.UnavailableItemException;
 import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.model.User;
+import ru.practicum.shareit.user.service.UserService;
 
 import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
@@ -55,6 +57,12 @@ public class BookingControllerTest {
 
     @Spy
     private BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
+
+    @Mock
+    private ItemService itemService;
+
+    @Mock
+    private UserService userService;
 
     @InjectMocks
     private BookingController bookingController;
@@ -99,7 +107,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testAddBooking_ShouldReturn200() throws Exception {
+    void addBookingTestShouldReturn200() throws Exception {
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenReturn(booking);
 
@@ -115,7 +123,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testAddBooking_ShouldReturn400() throws Exception {
+    void addBookingTestShouldReturn400() throws Exception {
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenThrow(new WrongStateException("Illegal user"));
 
