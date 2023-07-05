@@ -58,12 +58,6 @@ public class BookingControllerTest {
     @Spy
     private BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
 
-    @Mock
-    private ItemService itemService;
-
-    @Mock
-    private UserService userService;
-
     @InjectMocks
     private BookingController bookingController;
 
@@ -107,7 +101,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void addBookingTestShouldReturn200() throws Exception {
+    void testAddBooking_ShouldReturn200() throws Exception {
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenReturn(booking);
 
@@ -123,7 +117,7 @@ public class BookingControllerTest {
     }
 
     @Test
-    void addBookingTestShouldReturn400() throws Exception {
+    void testAddBooking_ShouldReturn400() throws Exception {
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenThrow(new WrongStateException("Illegal user"));
 
