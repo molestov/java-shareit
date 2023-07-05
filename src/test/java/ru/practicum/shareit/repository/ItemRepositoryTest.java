@@ -32,25 +32,6 @@ public class ItemRepositoryTest {
 
     Comment comment;
 
-/*    @Test
-    public void testCreateItem() {
-        item = createItem();
-        item.setOwner(createUser());
-        Item result = itemRepository.save(item);
-
-        Assertions.assertNotNull(result);
-    }
-
- */
-
-/*    @Test
-    public void testGetItem() {
-        item = itemRepository.findById(1L).get();
-        Assertions.assertNotNull(item);
-    }
-
- */
-
     @Test
     public void testGetItemsByOwnerId() {
         List<Item> result = itemRepository.findAllByOwnerIdOrderById(1L, new OffsetBasedPageRequest(0, 9999));

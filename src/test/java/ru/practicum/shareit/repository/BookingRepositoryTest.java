@@ -36,26 +36,6 @@ public class BookingRepositoryTest {
 
     private Booking booking;
 
-/*   @Test
-    public void testAddBooking() {
-        booking = createBooking();
-        booking.setItem(createItem());
-        booking.setBooker(createUser());
-        Booking result = bookingRepository.save(booking);
-
-        Assertions.assertNotNull(result);
-    }
-
- */
-
-/*    @Test
-    public void testGetBooking() {
-        Booking booking = bookingRepository.findById(1L).get();
-        Assertions.assertNotNull(booking);
-    }
-
- */
-
     @Test
     public void testBookingsByUserRequest1() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L)),
