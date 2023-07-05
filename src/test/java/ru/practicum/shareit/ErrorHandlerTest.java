@@ -9,7 +9,7 @@ import ru.practicum.shareit.error.exception.IllegalUserException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.error.model.ErrorResponse;
 
-public class errorHandlerTest {
+public class ErrorHandlerTest {
     ErrorHandler errorHandler = new ErrorHandler();
 
     @Test

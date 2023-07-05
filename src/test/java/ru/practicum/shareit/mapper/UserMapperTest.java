@@ -11,13 +11,13 @@ public class UserMapperTest {
     UserMapper userMapper = Mappers.getMapper(UserMapper.class);
 
     @Test
-    public void TestToUserDto() {
+    public void testToUserDto() {
         UserDto result = userMapper.toUserDto(null);
         Assertions.assertNull(result);
     }
 
     @Test
-    public void TestToUser() {
+    public void testToUser() {
         User result = userMapper.toUser(null);
         Assertions.assertNull(result);
     }
