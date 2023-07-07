@@ -10,7 +10,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
-import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -23,6 +22,7 @@ import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -42,16 +42,16 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class BookingServiceTest {
     @InjectMocks
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     private Booking booking;
 
@@ -79,7 +79,7 @@ public class BookingServiceTest {
 
         Booking savedBooking = bookingService.addBooking(1L, booking);
 
-        Assertions.assertEquals(booking.getId(), 1L);
+        assertEquals(booking.getId(), 1L);
     }
 
     @Test
@@ -146,7 +146,7 @@ public class BookingServiceTest {
 
         Booking savedBooking = bookingService.getBooking(1L, 1L);
 
-        Assertions.assertEquals(booking.getId(), 1L);
+        assertEquals(booking.getId(), 1L);
     }
 
     @Test
@@ -205,7 +205,7 @@ public class BookingServiceTest {
 
         Booking savedBooking = bookingService.setBookingStatus(1L, 1L, true);
 
-        Assertions.assertEquals(booking.getId(), 1L);
+        assertEquals(booking.getId(), 1L);
     }
 
     @Test
@@ -376,7 +376,7 @@ public class BookingServiceTest {
 
         Optional<Booking> savedBooking = bookingService.getLastBooking(1L);
 
-        Assertions.assertEquals(booking.getId(), 1L);
+        assertEquals(booking.getId(), 1L);
     }
 
     @Test
@@ -388,7 +388,7 @@ public class BookingServiceTest {
 
         Optional<Booking> savedBooking = bookingService.getNextBooking(1L);
 
-        Assertions.assertEquals(booking.getId(), 1L);
+        assertEquals(booking.getId(), 1L);
     }
 
     private Booking createBooking() {

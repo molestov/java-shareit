@@ -1,6 +1,5 @@
 package ru.practicum.shareit.mapper;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.booking.dto.BookingDto;
@@ -12,8 +11,10 @@ import ru.practicum.shareit.user.model.User;
 import java.sql.Timestamp;
 import java.time.Instant;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 public class BookingMapperTest {
-    BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
+    private final BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
 
     @Test
     public void testToBookingDto() {
@@ -24,7 +25,7 @@ public class BookingMapperTest {
         booking.setItem(createItem());
         booking.setBooker(createUser());
         BookingDto result = bookingMapper.toBookingDto(booking);
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     protected User createUser() {

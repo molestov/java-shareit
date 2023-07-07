@@ -1,22 +1,22 @@
 package ru.practicum.shareit.repository;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static ru.practicum.shareit.booking.repository.BookingSpecification.endAfterNow;
 import static ru.practicum.shareit.booking.repository.BookingSpecification.endBeforeNow;
 import static ru.practicum.shareit.booking.repository.BookingSpecification.hasBookerId;
@@ -41,7 +41,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L)),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -49,7 +49,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L)).and(startAfterNow()),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -58,7 +58,7 @@ public class BookingRepositoryTest {
                         .and(endAfterNow()))),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -66,7 +66,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L).and(endBeforeNow())),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -74,7 +74,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(hasBookerId(1L).and(hasStatus(BookingStatus.WAITING)),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -82,7 +82,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L)),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -90,7 +90,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L)).and(startAfterNow()),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -98,7 +98,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L).and(startBeforeNow()
                         .and(endAfterNow()))), new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -106,7 +106,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L).and(endBeforeNow())),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -114,7 +114,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(hasOwnerId(1L).and(hasStatus(BookingStatus.WAITING)),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -122,7 +122,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(hasOwnerId(1L).and(hasStatus(BookingStatus.REJECTED)),
                 new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -130,7 +130,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(hasBookerId(1L).and(hasBookerId(1L)
                         .and(hasStatus(BookingStatus.REJECTED))), new OffsetBasedPageRequest(0, 9999)).getContent();
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -138,7 +138,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasItemId(1L)
                 .and(startBeforeNow())));
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
@@ -146,7 +146,7 @@ public class BookingRepositoryTest {
         List<Booking> result = bookingRepository.findAll(orderByStartDateAsc(hasItemId(1L).and(startAfterNow()
                 .and(hasStatus(BookingStatus.APPROVED)))));
 
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     private Booking createBooking() {

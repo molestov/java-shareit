@@ -16,6 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -36,10 +37,12 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -50,35 +53,25 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class ItemControllerTest {
     @Mock
-    ItemService itemService;
+    private ItemService itemService;
 
     @Mock
-    BookingService bookingService;
+    private BookingService bookingService;
 
     @Spy
-    ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
+    private ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
 
     @Spy
-    BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
+    private BookingMapper bookingMapper = Mappers.getMapper(BookingMapper.class);
 
     @InjectMocks
-    ItemController itemController;
+    private ItemController itemController;
 
     private final ObjectMapper mapper = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .build();
 
     private MockMvc mvc;
-
-    private ItemDto itemDto;
-
-    private ItemDtoWithBookings itemDtoWithBookings;
-
-    private Item item;
-
-    private Comment comment;
-
-    private CommentDto commentDto;
 
     private BookingControllerTest bookingControllerTest = new BookingControllerTest();
 
@@ -87,67 +80,46 @@ public class ItemControllerTest {
         mvc = MockMvcBuilders
                 .standaloneSetup(itemController)
                 .build();
-
-        item = new Item();
-        item.setId(1L);
-        item.setDescription("Example text");
-        item.setAvailable(true);
-        item.setName("Example");
-        item.setOwner(bookingControllerTest.createUser());
-
-        itemDto = new ItemDto();
-        itemDto.setId(1L);
-
-        itemDtoWithBookings = new ItemDtoWithBookings();
-        itemDtoWithBookings.setId(1L);
-
-        comment = new Comment();
-        comment.setId(1L);
-        comment.setText("Example");
-        comment.setItem(item);
-        comment.setAuthor(createUser());
-
-        commentDto = new CommentDto();
-        commentDto.setId(1L);
-        commentDto.setText("Example");
     }
 
     @Test
     void addItemTest() throws Exception {
         when(itemService.addItem(anyLong(), any(Item.class)))
-                .thenReturn(item);
+                .thenReturn(createItem());
 
         mvc.perform(post("/items")
-                        .content(mapper.writeValueAsString(itemDto))
+                        .content(mapper.writeValueAsString(createItemDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(createItemDto().getId()), Long.class));
+        verify(itemService, times(1)).addItem(anyLong(), any(Item.class));
     }
 
     @Test
     void updateItemTest() throws Exception {
         when(itemService.updateItem(anyLong(), anyLong(), any(ItemDto.class)))
-                .thenReturn(item);
+                .thenReturn(createItem());
 
         mvc.perform(patch("/items/1")
-                        .content(mapper.writeValueAsString(itemDto))
+                        .content(mapper.writeValueAsString(createItemDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemDto.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(createItemDto().getId()), Long.class));
+        verify(itemService, times(1)).updateItem(anyLong(), anyLong(), any(ItemDto.class));
     }
 
     @Test
     void getItemTest() throws Exception {
         when(itemService.getItemById(anyLong(), anyLong()))
-                .thenReturn(item);
+                .thenReturn(createItem());
 
         mvc.perform(get("/items/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -156,7 +128,8 @@ public class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemDtoWithBookings.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(createItemDtoWithBookings().getId()), Long.class));
+        verify(itemService, times(1)).getItemById(anyLong(), anyLong());
     }
 
     @Test
@@ -171,6 +144,7 @@ public class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isNotFound());
+        verify(itemService, times(1)).getItemById(anyLong(), anyLong());
     }
 
     @Test
@@ -185,6 +159,7 @@ public class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isNotFound());
+        verify(itemService, times(1)).getItemById(anyLong(), anyLong());
     }
 
     @Test
@@ -199,34 +174,37 @@ public class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+        verify(itemService, times(1)).getItemsByOwnerId(anyLong(), any(Pageable.class));
     }
 
     @Test
     void getItemsByOwnerTestWithError1() throws Exception {
-
-        mvc.perform(get("/items/?from=-1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("From cannot be less then 0",
-                        result.getResolvedException().getMessage()));
+        NestedServletException error = new NestedServletException("");
+        try {
+            mvc.perform(get("/items/?from=-1")
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Sharer-User-Id", 1)
+                    .accept(MediaType.APPLICATION_JSON));
+        } catch (NestedServletException e) {
+            error = e;
+        }
+        assertTrue(error.getMessage().contains("Offset index must not be less than zero!"));
     }
 
     @Test
     void getItemsByOwnerTestWithError2() throws Exception {
-
-        mvc.perform(get("/items/?size=0")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("Size cannot be less then 1",
-                        result.getResolvedException().getMessage()));
+        NestedServletException error = new NestedServletException("");
+        try {
+            mvc.perform(get("/items/?size=0")
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Sharer-User-Id", 1)
+                    .accept(MediaType.APPLICATION_JSON));
+        } catch (NestedServletException e) {
+            error = e;
+        }
+        assertTrue(error.getMessage().contains("Limit must not be less than one!"));
     }
 
     @Test
@@ -241,25 +219,25 @@ public class ItemControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+        verify(itemService, times(1)).findItemsByKeyword(anyString(), any(Pageable.class));
     }
 
     @Test
     void testAddComment() throws Exception {
         when(itemService.addComment(anyLong(), anyLong(), any(Comment.class)))
-                .thenReturn(comment);
-        //when(itemMapper.toCommentDto(any(Comment.class)))
-                //.thenReturn(commentDto);
+                .thenReturn(createComment());
 
         mvc.perform(post("/items/1/comment")
-                        .content(mapper.writeValueAsString(commentDto))
+                        .content(mapper.writeValueAsString(createCommentDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(commentDto.getId()), Long.class))
-                .andExpect(jsonPath("$.text", is(commentDto.getText()), String.class));
+                .andExpect(jsonPath("$.id", is(createCommentDto().getId()), Long.class))
+                .andExpect(jsonPath("$.text", is(createCommentDto().getText()), String.class));
+        verify(itemService, times(1)).addComment(anyLong(), anyLong(), any(Comment.class));
     }
 
     @Test
@@ -286,5 +264,41 @@ public class ItemControllerTest {
         return user;
     }
 
+    private Item createItem() {
+        Item item = new Item();
+        item.setId(1L);
+        item.setDescription("Example text");
+        item.setAvailable(true);
+        item.setName("Example");
+        item.setOwner(bookingControllerTest.createUser());
+        return item;
+    }
 
+    private ItemDto createItemDto() {
+        ItemDto itemDto = new ItemDto();
+        itemDto.setId(1L);
+        return itemDto;
+    }
+
+    private ItemDtoWithBookings createItemDtoWithBookings() {
+        ItemDtoWithBookings itemDtoWithBookings = new ItemDtoWithBookings();
+        itemDtoWithBookings.setId(1L);
+        return itemDtoWithBookings;
+    }
+
+    private Comment createComment() {
+        Comment comment = new Comment();
+        comment.setId(1L);
+        comment.setText("Example");
+        comment.setItem(createItem());
+        comment.setAuthor(createUser());
+        return comment;
+    }
+
+    private CommentDto createCommentDto() {
+        CommentDto commentDto = new CommentDto();
+        commentDto.setId(1L);
+        commentDto.setText("Example");
+        return commentDto;
+    }
 }

@@ -2,17 +2,16 @@ package ru.practicum.shareit.request.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exception.IllegalUserException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
-import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.sql.Timestamp;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -30,15 +29,11 @@ public class ItemRequestService {
         return requestRepository.save(itemRequest);
     }
 
-    public List<ItemRequest> getAllRequests(Long id) {
+    public List<ItemRequest> getAllRequests(Long id, Pageable pageable) {
         if (!userRepository.existsById(id)) {
             throw new UnknownIdException("User not found");
         }
-        List<ItemRequest> result = requestRepository.findAllByRequestorId(id);
-        if (result != null) {
-            return result;
-        }
-        return new ArrayList<>();
+        return requestRepository.findAllByRequestorId(id);
     }
 
     public ItemRequest getRequest(Long userId, Long requestId) {
@@ -49,12 +44,6 @@ public class ItemRequestService {
     }
 
     public List<ItemRequest> getAllRequestsWithPages(Long id, int from, int size) {
-        if (from < 0) {
-            throw new WrongStateException("From cannot be less then 0");
-        }
-        if (size < 1) {
-            throw new WrongStateException("Size cannot be less then 1");
-        }
-        return requestRepository.findAllWithPagination(id, size, from);
+        return requestRepository.findAllWithPagination(id, from, size);
     }
 }

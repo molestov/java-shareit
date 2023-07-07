@@ -1,7 +1,5 @@
 package ru.practicum.shareit.service;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -19,6 +17,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -34,10 +33,6 @@ public class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    @BeforeEach
-    void setup() {
-    }
-
     @Test
     void testAddUser() {
         when(userRepository.findByEmail(anyString()))
@@ -47,7 +42,7 @@ public class UserServiceTest {
 
         User savedUser = userService.addUser(createUser());
 
-        Assertions.assertEquals(1L, savedUser.getId());
+        assertEquals(1L, savedUser.getId());
     }
 
     @Test
@@ -72,7 +67,7 @@ public class UserServiceTest {
 
         User savedUser = userService.updateUser(1L, userDto);
 
-        Assertions.assertEquals(1L, savedUser.getId());
+        assertEquals(1L, savedUser.getId());
     }
 
     @Test
@@ -111,7 +106,7 @@ public class UserServiceTest {
 
         User savedUser = userService.getUser(1L);
 
-        Assertions.assertEquals(1L, savedUser.getId());
+        assertEquals(1L, savedUser.getId());
     }
 
     @Test
@@ -145,7 +140,7 @@ public class UserServiceTest {
 
         List<User> savedUser = userService.getAllUsers();
 
-        Assertions.assertNotNull(savedUser);
+        assertNotNull(savedUser);
     }
 
     protected User createUser() {

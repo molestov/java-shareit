@@ -1,6 +1,5 @@
 package ru.practicum.shareit.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -8,7 +7,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Pageable;
-import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -22,6 +20,7 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
+import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -32,6 +31,8 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -42,19 +43,19 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ItemServiceTest {
     @InjectMocks
-    ItemServiceImpl itemService;
+    private ItemServiceImpl itemService;
 
     @Mock
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
     @Mock
-    BookingRepository bookingRepository;
+    private BookingRepository bookingRepository;
 
     private Item item;
 
@@ -85,7 +86,7 @@ public class ItemServiceTest {
 
         Item savedItem = itemService.addItem(1L, item);
 
-        Assertions.assertEquals(savedItem.getId(), 1L);
+        assertEquals(savedItem.getId(), 1L);
     }
 
     @Test
@@ -143,7 +144,7 @@ public class ItemServiceTest {
 
         Item savedItem = itemService.updateItem(1L, 1L, itemDto);
 
-        Assertions.assertEquals(savedItem.getId(), 1L);
+        assertEquals(savedItem.getId(), 1L);
     }
 
     @Test
@@ -177,7 +178,7 @@ public class ItemServiceTest {
 
         Item savedItem = itemService.getItemById(1L, 1L);
 
-        Assertions.assertEquals(savedItem.getId(), 1L);
+        assertEquals(savedItem.getId(), 1L);
     }
 
     @Test
@@ -188,7 +189,7 @@ public class ItemServiceTest {
 
         Item savedItem = itemService.getItemById(1L, 1L);
 
-        Assertions.assertEquals(savedItem.getId(), 1L);
+        assertEquals(savedItem.getId(), 1L);
     }
 
     @Test
@@ -198,7 +199,7 @@ public class ItemServiceTest {
 
         List<Item> savedItems = itemService.getItemsByRequest(1L, new OffsetBasedPageRequest(0, 9999));
 
-        Assertions.assertNotNull(savedItems);
+        assertNotNull(savedItems);
     }
 
     @Test
@@ -208,7 +209,7 @@ public class ItemServiceTest {
 
         List<Item> savedItems = itemService.getItemsByRequest(1L, new OffsetBasedPageRequest(0, 9999));
 
-        Assertions.assertNotNull(savedItems);
+        assertNull(savedItems);
     }
 
     @Test
@@ -229,7 +230,7 @@ public class ItemServiceTest {
 
         List<Item> savedItem = itemService.getItemsByOwnerId(1L, new OffsetBasedPageRequest(0, 9999));
 
-        Assertions.assertNotNull(savedItem);
+        assertNotNull(savedItem);
     }
 
     @Test
@@ -239,14 +240,14 @@ public class ItemServiceTest {
 
         List<Item> savedItem = itemService.findItemsByKeyword("example", new OffsetBasedPageRequest(0, 9999));
 
-        Assertions.assertNotNull(savedItem);
+        assertNotNull(savedItem);
     }
 
     @Test
     void testGetItemsByKeyword_EmptyKeyword() {
         List<Item> savedItem = itemService.findItemsByKeyword("", new OffsetBasedPageRequest(0, 9999));
 
-        Assertions.assertNotNull(savedItem);
+        assertNotNull(savedItem);
     }
 
     @Test
@@ -266,7 +267,7 @@ public class ItemServiceTest {
 
         Comment savedComment = itemService.addComment(1L, 1L, comment);
 
-        Assertions.assertEquals(savedComment.getId(), 1L);
+        assertEquals(savedComment.getId(), 1L);
     }
 
     @Test

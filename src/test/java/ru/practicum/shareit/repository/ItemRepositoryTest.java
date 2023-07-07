@@ -1,54 +1,55 @@
 package ru.practicum.shareit.repository;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
 @ExtendWith(SpringExtension.class)
 @DataJpaTest
 public class ItemRepositoryTest {
     @Autowired
-    ItemRepository itemRepository;
+    private ItemRepository itemRepository;
 
     @Autowired
-    CommentRepository commentRepository;
+    private CommentRepository commentRepository;
 
-    Item item;
+    private Item item;
 
-    Comment comment;
+    private Comment comment;
 
     @Test
     public void testGetItemsByOwnerId() {
         List<Item> result = itemRepository.findAllByOwnerIdOrderById(1L, new OffsetBasedPageRequest(0, 9999));
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
     public void testFindItemsByKeyword() {
         List<Item> result = itemRepository.findItemsByKeyword("аккумуляторная",
                 new OffsetBasedPageRequest(0, 9999));
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     @Test
     public void testGetItemsByRequest() {
         List<Item> result = itemRepository.findAllByRequestId(1L, new OffsetBasedPageRequest(0, 9999));
-        Assertions.assertNotNull(result);
+        assertNotNull(result);
     }
 
     private Booking createBooking() {

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -9,20 +10,23 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import ru.practicum.shareit.OffsetBasedPageRequest;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
 @RequestMapping(path = "/requests")
+@Validated
 public class ItemRequestController {
 
     private final ItemRequestService itemRequestService;
@@ -32,7 +36,8 @@ public class ItemRequestController {
 
 
     @Autowired
-    public ItemRequestController(ItemRequestService itemRequestService, ItemRequestMapper itemRequestMapper, ItemService itemService, ItemMapper itemMapper) {
+    public ItemRequestController(ItemRequestService itemRequestService, ItemRequestMapper itemRequestMapper,
+                                 ItemService itemService, ItemMapper itemMapper) {
         this.itemRequestService = itemRequestService;
         this.itemRequestMapper = itemRequestMapper;
         this.itemService = itemService;
@@ -47,15 +52,22 @@ public class ItemRequestController {
     }
 
     @GetMapping
-    public List<ItemRequestDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long id) {
-        List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toListDto(itemRequestService.getAllRequests(id));
+    public List<ItemRequestDto> getAllRequests(@RequestHeader("X-Sharer-User-Id") Long id,
+                                               @RequestParam(value = "from", defaultValue = "0")
+                                               @PositiveOrZero int from,
+                                               @RequestParam(value = "size", defaultValue = "9999")
+                                               @Positive int size) {
+        List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toListDto(itemRequestService.getAllRequests(id,
+                new OffsetBasedPageRequest(from, size)));
         return setItemDtoToList(itemRequestDtos);
     }
 
     @GetMapping("/all")
     public List<ItemRequestDto> getAllRequestsWithParameters(@RequestHeader("X-Sharer-User-Id") Long id,
-                                                        @RequestParam(value = "from", defaultValue = "0") int from,
-                                                        @RequestParam(value = "size", defaultValue = "9999") int size) {
+                                                             @RequestParam(value = "from", defaultValue = "0")
+                                                             @PositiveOrZero int from,
+                                                             @RequestParam(value = "size", defaultValue = "9999")
+                                                             @Positive int size) {
         List<ItemRequestDto> itemRequestDtos = itemRequestMapper
                 .toListDto(itemRequestService.getAllRequestsWithPages(id, from, size));
         return setItemDtoToList(itemRequestDtos);

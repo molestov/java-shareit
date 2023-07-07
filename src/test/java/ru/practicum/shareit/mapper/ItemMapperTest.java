@@ -1,6 +1,5 @@
 package ru.practicum.shareit.mapper;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mapstruct.factory.Mappers;
 import ru.practicum.shareit.booking.model.Booking;
@@ -14,20 +13,23 @@ import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 public class ItemMapperTest {
-    ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
+    private final ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
 
     @Test
     public void mapRequestTest() {
         ItemRequest itemRequest = new ItemRequest();
         itemRequest.setId(1L);
-        Assertions.assertEquals(itemMapper.mapRequest(itemRequest), 1L);
+        assertEquals(itemMapper.mapRequest(itemRequest), 1L);
     }
 
     @Test
     public void mapLongTest() {
-        Assertions.assertEquals(itemMapper.mapLong(null), null);
-        Assertions.assertTrue(itemMapper.mapLong(1L).getId() == 1L);
+        assertEquals(itemMapper.mapLong(null), null);
+        assertTrue(itemMapper.mapLong(1L).getId() == 1L);
     }
 
     @Test
@@ -36,7 +38,7 @@ public class ItemMapperTest {
         item.setOwner(createUser());
         item.setId(1L);
         item.setComments(new ArrayList<>());
-        Assertions.assertTrue(itemMapper.toItemDtoWithBookings(item).getId() == 1L);
+        assertTrue(itemMapper.toItemDtoWithBookings(item).getId() == 1L);
     }
 
     private Booking createBooking() {

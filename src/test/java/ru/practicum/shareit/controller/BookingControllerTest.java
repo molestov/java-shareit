@@ -15,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithEntities;
@@ -38,11 +39,13 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
@@ -73,53 +76,29 @@ public class BookingControllerTest {
 
     private MockMvc mvc;
 
-    private BookingDto bookingDto;
-
-    private BookingDtoWithEntities bookingDtoWithEntities;
-
-    private Booking booking;
-
     @BeforeEach
     void setUp() {
         mvc = MockMvcBuilders
                 .standaloneSetup(bookingController)
                 .build();
-
-        booking = createBooking();
-        booking.setItem(createItem());
-        booking.setBooker(createUser());
-
-        bookingDto = new BookingDto(
-                1L,
-                LocalDateTime.now().plusHours(1),
-                LocalDateTime.now().plusHours(12),
-                1L,
-                1L,
-                BookingStatus.WAITING);
-
-        bookingDtoWithEntities = new BookingDtoWithEntities();
-        bookingDtoWithEntities.setId(1L);
-        bookingDtoWithEntities.setStart(LocalDateTime.now().plusHours(1));
-        bookingDtoWithEntities.setEnd(LocalDateTime.now().plusHours(12));
-        bookingDtoWithEntities.setItem(createItem());
-        bookingDtoWithEntities.setBooker(createUser());
-        bookingDtoWithEntities.setStatus(BookingStatus.WAITING);
     }
 
     @Test
     void addBookingTestShouldReturn200() throws Exception {
+        Booking booking = createBooking();
         when(bookingService.addBooking(anyLong(), any(Booking.class)))
                 .thenReturn(booking);
 
         mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
+                        .content(mapper.writeValueAsString(makeBookingDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(booking.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(createBooking().getId()), Long.class));
+        verify(bookingService, times(1)).addBooking(anyLong(), any(Booking.class));
     }
 
     @Test
@@ -128,13 +107,14 @@ public class BookingControllerTest {
                 .thenThrow(new WrongStateException("Illegal user"));
 
         mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
+                        .content(mapper.writeValueAsString(makeBookingDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isBadRequest());
+        verify(bookingService, times(1)).addBooking(anyLong(), any(Booking.class));
     }
 
     @Test
@@ -143,13 +123,14 @@ public class BookingControllerTest {
                 .thenThrow(new UnavailableItemException("Example"));
 
         mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
+                        .content(mapper.writeValueAsString(makeBookingDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isBadRequest());
+        verify(bookingService, times(1)).addBooking(anyLong(), any(Booking.class));
     }
 
     @Test
@@ -158,13 +139,14 @@ public class BookingControllerTest {
                 .thenThrow(new BookingByOwnerException("Example"));
 
         mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
+                        .content(mapper.writeValueAsString(makeBookingDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isNotFound());
+        verify(bookingService, times(1)).addBooking(anyLong(), any(Booking.class));
     }
 
     @Test
@@ -173,19 +155,20 @@ public class BookingControllerTest {
                 .thenThrow(new EndBeforeStartException("Example"));
 
         mvc.perform(post("/bookings")
-                        .content(mapper.writeValueAsString(bookingDto))
+                        .content(mapper.writeValueAsString(makeBookingDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isBadRequest());
+        verify(bookingService, times(1)).addBooking(anyLong(), any(Booking.class));
     }
 
     @Test
     void testGetBookingShouldReturn200() throws Exception {
         when(bookingService.getBooking(anyLong(), anyLong()))
-                .thenReturn(booking);
+                .thenReturn(createBooking());
 
         mvc.perform(get("/bookings/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -194,11 +177,14 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(bookingDtoWithEntities.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(makeBookingDtoWithEntities().getId()), Long.class));
+        verify(bookingService, times(1)).getBooking(anyLong(), anyLong());
     }
 
     @Test
     void shouldReturn200WhenSetBookingStatus() throws Exception {
+        BookingDtoWithEntities bookingDtoWithEntities = makeBookingDtoWithEntities();
+        Booking booking = createBooking();
         booking.setStatus(BookingStatus.APPROVED);
         bookingDtoWithEntities.setStatus(BookingStatus.APPROVED);
         when(bookingService.setBookingStatus(anyLong(), anyLong(), anyBoolean()))
@@ -212,6 +198,7 @@ public class BookingControllerTest {
 
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("APPROVED")));
+        verify(bookingService, times(1)).setBookingStatus(anyLong(), anyLong(), anyBoolean());
     }
 
     @Test
@@ -226,34 +213,38 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+        verify(bookingService, times(1)).getAllUserBookingsByState(anyLong(), anyString(),
+                any(Pageable.class));
     }
 
     @Test
     void testGetAllUserBookingsByStateWithError() throws Exception {
-
-        mvc.perform(get("/bookings/?from=-1&size=1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("From cannot be less then 0",
-                        result.getResolvedException().getMessage()));
+        NestedServletException error = new NestedServletException("");
+        try {
+            mvc.perform(get("/bookings/?from=-1&size=1")
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Sharer-User-Id", 1)
+                    .accept(MediaType.APPLICATION_JSON));
+        } catch (NestedServletException e) {
+            error = e;
+        }
+        assertTrue(error.getMessage().contains("Offset index must not be less than zero!"));
     }
 
     @Test
     void testGetAllUserBookingsByStateWithError2() throws Exception {
-
-        mvc.perform(get("/bookings/?from=0&size=0")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("Size cannot be less then 1",
-                        result.getResolvedException().getMessage()));
+        NestedServletException error = new NestedServletException("");
+        try {
+            mvc.perform(get("/bookings/?from=0&size=0")
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Sharer-User-Id", 1)
+                    .accept(MediaType.APPLICATION_JSON));
+        } catch (NestedServletException e) {
+            error = e;
+        }
+        assertTrue(error.getMessage().contains("Limit must not be less than one!"));
     }
 
     @Test
@@ -268,34 +259,38 @@ public class BookingControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+        verify(bookingService, times(1)).getAllOwnerBookingsByState(anyLong(), anyString(),
+                any(Pageable.class));
     }
 
     @Test
     void testGetAllOwnerBookingsByStateWithError() throws Exception {
-
-        mvc.perform(get("/bookings/owner/?from=-1&size=1")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("From cannot be less then 0",
-                        result.getResolvedException().getMessage()));
+        NestedServletException error = new NestedServletException("");
+        try {
+            mvc.perform(get("/bookings/owner/?from=-1&size=1")
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Sharer-User-Id", 1)
+                    .accept(MediaType.APPLICATION_JSON));
+        } catch (NestedServletException e) {
+            error = e;
+        }
+        assertTrue(error.getMessage().contains("Offset index must not be less than zero!"));
     }
 
     @Test
     void testGetAllOwnerBookingsByStateWithError2() throws Exception {
-
-        mvc.perform(get("/bookings/owner/?from=0&size=0")
-                        .characterEncoding(StandardCharsets.UTF_8)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Sharer-User-Id", 1)
-                        .accept(MediaType.APPLICATION_JSON))
-
-                .andExpect(status().isBadRequest())
-                .andExpect(result -> assertEquals("Size cannot be less then 1",
-                        result.getResolvedException().getMessage()));
+        NestedServletException error = new NestedServletException("");
+        try {
+            mvc.perform(get("/bookings/owner/?from=0&size=0")
+                    .characterEncoding(StandardCharsets.UTF_8)
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .header("X-Sharer-User-Id", 1)
+                    .accept(MediaType.APPLICATION_JSON));
+        } catch (NestedServletException e) {
+            error = e;
+        }
+        assertTrue(error.getMessage().contains("Limit must not be less than one!"));
     }
 
     private Booking createBooking() {
@@ -304,6 +299,8 @@ public class BookingControllerTest {
         booking.setStatus(BookingStatus.WAITING);
         booking.setStart(Timestamp.from(Instant.now()));
         booking.setEnd(Timestamp.from(Instant.now().plusSeconds(3600)));
+        booking.setItem(createItem());
+        booking.setBooker(createUser());
         return booking;
     }
 
@@ -322,5 +319,32 @@ public class BookingControllerTest {
         item.setDescription("Example text");
         item.setAvailable(true);
         return item;
+    }
+
+    private BookingDto makeBookingDto(Long id, LocalDateTime start, LocalDateTime end, Long itemId, Long bookerId,
+                                      BookingStatus status) {
+        return new BookingDto(id, start, end, itemId, bookerId, status);
+    }
+
+    private BookingDto makeBookingDto() {
+        BookingDto bookingDto = new BookingDto(
+                1L,
+                LocalDateTime.now().plusHours(1),
+                LocalDateTime.now().plusHours(12),
+                1L,
+                1L,
+                BookingStatus.WAITING);
+        return bookingDto;
+    }
+
+    private BookingDtoWithEntities makeBookingDtoWithEntities() {
+        BookingDtoWithEntities bookingDtoWithEntities =  new BookingDtoWithEntities();
+        bookingDtoWithEntities.setId(1L);
+        bookingDtoWithEntities.setStart(LocalDateTime.now().plusHours(1));
+        bookingDtoWithEntities.setEnd(LocalDateTime.now().plusHours(12));
+        bookingDtoWithEntities.setItem(createItem());
+        bookingDtoWithEntities.setBooker(createUser());
+        bookingDtoWithEntities.setStatus(BookingStatus.WAITING);
+        return bookingDtoWithEntities;
     }
 }

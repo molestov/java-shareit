@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
@@ -29,6 +30,8 @@ import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -38,23 +41,19 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ExtendWith(MockitoExtension.class)
 public class ItemRequestControllerTest {
     @InjectMocks
-    ItemRequestController itemRequestController;
+    private ItemRequestController itemRequestController;
 
     @Spy
-    ItemRequestMapper itemRequestMapper = Mappers.getMapper(ItemRequestMapper.class);
+    private ItemRequestMapper itemRequestMapper = Mappers.getMapper(ItemRequestMapper.class);
 
     @Mock
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @Mock
-    ItemService itemService;
+    private ItemService itemService;
 
     @Spy
-    ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
-
-    private ItemRequest itemRequest;
-
-    private ItemRequestDto itemRequestDto;
+    private ItemMapper itemMapper = Mappers.getMapper(ItemMapper.class);
 
     private final ObjectMapper mapper = JsonMapper.builder()
             .addModule(new JavaTimeModule())
@@ -67,35 +66,28 @@ public class ItemRequestControllerTest {
         mvc = MockMvcBuilders
                 .standaloneSetup(itemRequestController)
                 .build();
-
-        itemRequest = new ItemRequest();
-        itemRequest.setId(1L);
-
-        itemRequestDto = new ItemRequestDto();
-        itemRequestDto.setId(1L);
-        itemRequestDto.setDescription("Example test");
-
     }
 
     @Test
     void testItemRequest() throws Exception {
         when(itemRequestService.addItemRequest(anyLong(), any(ItemRequest.class)))
-                .thenReturn(itemRequest);
+                .thenReturn(createItemRequest());
 
         mvc.perform(post("/requests")
-                        .content(mapper.writeValueAsString(itemRequestDto))
+                        .content(mapper.writeValueAsString(createItemRequestDto()))
                         .characterEncoding(StandardCharsets.UTF_8)
                         .contentType(MediaType.APPLICATION_JSON)
                         .header("X-Sharer-User-Id", 1)
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemRequestDto.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(createItemRequestDto().getId()), Long.class));
+        verify(itemRequestService, times(1)).addItemRequest(anyLong(), any(ItemRequest.class));
     }
 
     @Test
     void testGetAllRequests() throws Exception {
-        when(itemRequestService.getAllRequests(anyLong()))
+        when(itemRequestService.getAllRequests(anyLong(), any(Pageable.class)))
                 .thenReturn(new ArrayList<ItemRequest>());
 
         mvc.perform(get("/requests")
@@ -105,6 +97,7 @@ public class ItemRequestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+        verify(itemRequestService, times(1)).getAllRequests(anyLong(), any(Pageable.class));
     }
 
     @Test
@@ -119,12 +112,13 @@ public class ItemRequestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk());
+        verify(itemRequestService, times(1)).getAllRequestsWithPages(anyLong(), anyInt(), anyInt());
     }
 
     @Test
     void testGetRequest() throws Exception {
         when(itemRequestService.getRequest(anyLong(), anyLong()))
-                .thenReturn(itemRequest);
+                .thenReturn(createItemRequest());
 
         mvc.perform(get("/requests/1")
                         .characterEncoding(StandardCharsets.UTF_8)
@@ -133,6 +127,20 @@ public class ItemRequestControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
 
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id", is(itemRequestDto.getId()), Long.class));
+                .andExpect(jsonPath("$.id", is(createItemRequestDto().getId()), Long.class));
+        verify(itemRequestService, times(1)).getRequest(anyLong(), anyLong());
+    }
+
+    private ItemRequest createItemRequest() {
+        ItemRequest itemRequest = new ItemRequest();
+        itemRequest.setId(1L);
+        return itemRequest;
+    }
+
+    private ItemRequestDto createItemRequestDto() {
+        ItemRequestDto itemRequestDto = new ItemRequestDto();
+        itemRequestDto.setId(1L);
+        itemRequestDto.setDescription("Example test");
+        return itemRequestDto;
     }
 }

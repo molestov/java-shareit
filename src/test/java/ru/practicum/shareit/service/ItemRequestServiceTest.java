@@ -1,6 +1,5 @@
 package ru.practicum.shareit.service;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,8 +8,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.practicum.shareit.error.exception.IllegalUserException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
-import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.model.Item;
+import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestService;
@@ -22,22 +21,23 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ItemRequestServiceTest {
     @InjectMocks
-    ItemRequestService itemRequestService;
+    private ItemRequestService itemRequestService;
 
     @Mock
-    RequestRepository requestRepository;
+    private RequestRepository requestRepository;
 
     @Mock
-    UserRepository userRepository;
+    private UserRepository userRepository;
 
     private ItemRequest itemRequest;
 
@@ -59,7 +59,7 @@ public class ItemRequestServiceTest {
                 .thenReturn(itemRequest);
 
         ItemRequest savedItemRequest = itemRequestService.addItemRequest(1L, itemRequest);
-        Assertions.assertTrue(savedItemRequest.getId() == 1L);
+        assertTrue(savedItemRequest.getId() == 1L);
     }
 
     @Test
@@ -69,8 +69,9 @@ public class ItemRequestServiceTest {
         when(requestRepository.findAllByRequestorId(anyLong()))
                 .thenReturn(new ArrayList<ItemRequest>());
 
-        List<ItemRequest> savedItemRequest = itemRequestService.getAllRequests(1L);
-        Assertions.assertNotNull(savedItemRequest);
+        List<ItemRequest> savedItemRequest = itemRequestService.getAllRequests(1L,
+                new OffsetBasedPageRequest(0, 9999));
+        assertNotNull(savedItemRequest);
     }
 
     @Test
@@ -79,7 +80,7 @@ public class ItemRequestServiceTest {
                 .thenReturn(false);
 
         UnknownIdException exception = assertThrows(UnknownIdException.class,
-                () -> itemRequestService.getAllRequests(1L));
+                () -> itemRequestService.getAllRequests(1L, new OffsetBasedPageRequest(0, 9999)));
 
         assertEquals("User not found", exception.getMessage());
     }
@@ -95,21 +96,9 @@ public class ItemRequestServiceTest {
         assertEquals("No such user", exception.getMessage());
     }
 
-    @Test
-    void testGetAllRequestsWithPagesWithError1() {
-        WrongStateException exception = assertThrows(WrongStateException.class,
-                () -> itemRequestService.getAllRequestsWithPages(1L, -1, 1));
 
-        assertEquals("From cannot be less then 0", exception.getMessage());
-    }
 
-    @Test
-    void testGetAllRequestsWithPagesWithError2() {
-        WrongStateException exception = assertThrows(WrongStateException.class,
-                () -> itemRequestService.getAllRequestsWithPages(1L, 0, 0));
 
-        assertEquals("Size cannot be less then 1", exception.getMessage());
-    }
 
     @Test
     void testGetRequest() {
@@ -119,17 +108,10 @@ public class ItemRequestServiceTest {
                 .thenReturn(Optional.of(itemRequest));
 
         ItemRequest savedItemRequest = itemRequestService.getRequest(1L, 1L);
-        Assertions.assertTrue(savedItemRequest.getId() == 1L);
+        assertTrue(savedItemRequest.getId() == 1L);
     }
 
-    @Test
-    void testGetAllRequestsWithPage() {
-        when(requestRepository.findAllWithPagination(anyLong(), anyInt(), anyInt()))
-                .thenReturn(new ArrayList<ItemRequest>());
 
-        List<ItemRequest> savedItemRequest = itemRequestService.getAllRequestsWithPages(1L, 0, 9999);
-        Assertions.assertNotNull(savedItemRequest);
-    }
 
 
 
