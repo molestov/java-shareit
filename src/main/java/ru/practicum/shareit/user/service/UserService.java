@@ -1,9 +1,9 @@
 package ru.practicum.shareit.user.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exception.DuplicatedEmailException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
@@ -16,13 +16,9 @@ import java.util.List;
 import java.util.stream.Stream;
 
 @Service
+@AllArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-
-    @Autowired
-    public UserService(UserRepository userRepository) {
-        this.userRepository = userRepository;
-    }
 
     public User addUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {

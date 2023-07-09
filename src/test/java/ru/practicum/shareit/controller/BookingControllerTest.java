@@ -15,7 +15,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.booking.controller.BookingController;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.dto.BookingDtoWithEntities;
@@ -39,7 +38,6 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -218,36 +216,6 @@ public class BookingControllerTest {
     }
 
     @Test
-    void testGetAllUserBookingsByStateWithError() throws Exception {
-        NestedServletException error = new NestedServletException("");
-        try {
-            mvc.perform(get("/bookings/?from=-1&size=1")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Sharer-User-Id", 1)
-                    .accept(MediaType.APPLICATION_JSON));
-        } catch (NestedServletException e) {
-            error = e;
-        }
-        assertTrue(error.getMessage().contains("Offset index must not be less than zero!"));
-    }
-
-    @Test
-    void testGetAllUserBookingsByStateWithError2() throws Exception {
-        NestedServletException error = new NestedServletException("");
-        try {
-            mvc.perform(get("/bookings/?from=0&size=0")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Sharer-User-Id", 1)
-                    .accept(MediaType.APPLICATION_JSON));
-        } catch (NestedServletException e) {
-            error = e;
-        }
-        assertTrue(error.getMessage().contains("Limit must not be less than one!"));
-    }
-
-    @Test
     void testGetAllOwnerBookingsByState() throws Exception {
         when(bookingService.getAllOwnerBookingsByState(anyLong(), anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Booking>());
@@ -261,36 +229,6 @@ public class BookingControllerTest {
                 .andExpect(status().isOk());
         verify(bookingService, times(1)).getAllOwnerBookingsByState(anyLong(), anyString(),
                 any(Pageable.class));
-    }
-
-    @Test
-    void testGetAllOwnerBookingsByStateWithError() throws Exception {
-        NestedServletException error = new NestedServletException("");
-        try {
-            mvc.perform(get("/bookings/owner/?from=-1&size=1")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Sharer-User-Id", 1)
-                    .accept(MediaType.APPLICATION_JSON));
-        } catch (NestedServletException e) {
-            error = e;
-        }
-        assertTrue(error.getMessage().contains("Offset index must not be less than zero!"));
-    }
-
-    @Test
-    void testGetAllOwnerBookingsByStateWithError2() throws Exception {
-        NestedServletException error = new NestedServletException("");
-        try {
-            mvc.perform(get("/bookings/owner/?from=0&size=0")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Sharer-User-Id", 1)
-                    .accept(MediaType.APPLICATION_JSON));
-        } catch (NestedServletException e) {
-            error = e;
-        }
-        assertTrue(error.getMessage().contains("Limit must not be less than one!"));
     }
 
     private Booking createBooking() {

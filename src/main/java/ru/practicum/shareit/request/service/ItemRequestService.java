@@ -1,7 +1,6 @@
 package ru.practicum.shareit.request.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.error.exception.IllegalUserException;
@@ -17,11 +16,10 @@ import java.util.List;
 @Service
 @AllArgsConstructor
 public class ItemRequestService {
-    @Autowired
-    RequestRepository requestRepository;
 
-    @Autowired
-    UserRepository userRepository;
+    private RequestRepository requestRepository;
+
+    private UserRepository userRepository;
 
     public ItemRequest addItemRequest(Long id, ItemRequest itemRequest) {
         itemRequest.setCreated(Timestamp.from(Instant.now()));

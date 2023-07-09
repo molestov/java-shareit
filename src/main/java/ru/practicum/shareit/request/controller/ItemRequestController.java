@@ -1,6 +1,7 @@
 package ru.practicum.shareit.request.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.request.dto.ItemRequestDto;
 import ru.practicum.shareit.request.mapper.ItemRequestMapper;
 import ru.practicum.shareit.request.model.ItemRequest;
@@ -25,6 +25,7 @@ import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/requests")
 @Validated
 public class ItemRequestController {
@@ -33,16 +34,6 @@ public class ItemRequestController {
     private final ItemRequestMapper itemRequestMapper;
     private final ItemService itemService;
     private ItemMapper itemMapper;
-
-
-    @Autowired
-    public ItemRequestController(ItemRequestService itemRequestService, ItemRequestMapper itemRequestMapper,
-                                 ItemService itemService, ItemMapper itemMapper) {
-        this.itemRequestService = itemRequestService;
-        this.itemRequestMapper = itemRequestMapper;
-        this.itemService = itemService;
-        this.itemMapper = itemMapper;
-    }
 
     @PostMapping
     public ItemRequestDto addItemRequest(@RequestHeader("X-Sharer-User-Id") Long id,
@@ -58,7 +49,7 @@ public class ItemRequestController {
                                                @RequestParam(value = "size", defaultValue = "9999")
                                                @Positive int size) {
         List<ItemRequestDto> itemRequestDtos = itemRequestMapper.toListDto(itemRequestService.getAllRequests(id,
-                new OffsetBasedPageRequest(from, size)));
+                PageRequest.of(from / size, size)));
         return setItemDtoToList(itemRequestDtos);
     }
 
@@ -77,7 +68,7 @@ public class ItemRequestController {
     public ItemRequestDto getRequest(@RequestHeader("X-Sharer-User-Id") Long id, @PathVariable Long requestId) {
         ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequestService.getRequest(id, requestId));
         List<ItemDto> items = itemMapper.toListDto(itemService.getItemsByRequest(requestId,
-                new OffsetBasedPageRequest(0, 9999)));
+                PageRequest.of(0 / 9999, 9999)));
         itemRequestDto.setItems(items);
         return itemRequestDto;
     }
@@ -86,7 +77,7 @@ public class ItemRequestController {
         itemRequestDtos
                 .forEach(request ->
                         request.setItems(itemMapper.toListDto(itemService.getItemsByRequest(request.getId(),
-                                new OffsetBasedPageRequest(0, 9999)))));
+                                PageRequest.of(0 / 9999, 9999)))));
         return itemRequestDtos;
     }
 }

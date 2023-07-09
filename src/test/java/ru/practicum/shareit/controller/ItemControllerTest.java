@@ -16,7 +16,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-import org.springframework.web.util.NestedServletException;
 import ru.practicum.shareit.booking.dto.BookingDto;
 import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
@@ -37,7 +36,6 @@ import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.hamcrest.Matchers.is;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -175,36 +173,6 @@ public class ItemControllerTest {
 
                 .andExpect(status().isOk());
         verify(itemService, times(1)).getItemsByOwnerId(anyLong(), any(Pageable.class));
-    }
-
-    @Test
-    void getItemsByOwnerTestWithError1() throws Exception {
-        NestedServletException error = new NestedServletException("");
-        try {
-            mvc.perform(get("/items/?from=-1")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Sharer-User-Id", 1)
-                    .accept(MediaType.APPLICATION_JSON));
-        } catch (NestedServletException e) {
-            error = e;
-        }
-        assertTrue(error.getMessage().contains("Offset index must not be less than zero!"));
-    }
-
-    @Test
-    void getItemsByOwnerTestWithError2() throws Exception {
-        NestedServletException error = new NestedServletException("");
-        try {
-            mvc.perform(get("/items/?size=0")
-                    .characterEncoding(StandardCharsets.UTF_8)
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .header("X-Sharer-User-Id", 1)
-                    .accept(MediaType.APPLICATION_JSON));
-        } catch (NestedServletException e) {
-            error = e;
-        }
-        assertTrue(error.getMessage().contains("Limit must not be less than one!"));
     }
 
     @Test

@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -20,7 +21,6 @@ import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
@@ -32,6 +32,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
+@AllArgsConstructor
 @Validated
 public class ItemController {
     private final ItemService itemService;
@@ -43,16 +44,6 @@ public class ItemController {
     private final BookingMapper bookingMapper;
 
     private final ItemRequestService itemRequestService;
-
-    @Autowired
-    public ItemController(ItemService itemService, ItemMapper itemMapper,
-                          BookingService bookingService, BookingMapper bookingMapper, ItemRequestService itemRequestService) {
-        this.itemService = itemService;
-        this.itemMapper = itemMapper;
-        this.bookingService = bookingService;
-        this.bookingMapper = bookingMapper;
-        this.itemRequestService = itemRequestService;
-    }
 
     @PostMapping
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long id,
@@ -87,7 +78,7 @@ public class ItemController {
                                                      @PositiveOrZero int from,
                                                      @RequestParam(value = "size", defaultValue = "9999")
                                                      @Positive int size) {
-        List<Item> items =  itemService.getItemsByOwnerId(id, new OffsetBasedPageRequest(from, size));
+        List<Item> items =  itemService.getItemsByOwnerId(id, PageRequest.of(from / size, size));
         return items.stream()
                 .map(itemMapper::toItemDtoWithBookings)
                 .map(this::setBookings)
@@ -100,7 +91,7 @@ public class ItemController {
                                              @PositiveOrZero int from,
                                              @RequestParam(value = "size", defaultValue = "9999")
                                              @Positive int size) {
-        List<Item> items =  itemService.findItemsByKeyword(text, new OffsetBasedPageRequest(from, size));
+        List<Item> items =  itemService.findItemsByKeyword(text, PageRequest.of(from / size, size));
         return items.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());

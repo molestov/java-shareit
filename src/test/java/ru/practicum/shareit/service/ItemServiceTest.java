@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -20,7 +21,6 @@ import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
 import ru.practicum.shareit.item.service.ItemServiceImpl;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -197,7 +197,7 @@ public class ItemServiceTest {
         when(itemRepository.findAllByRequestId(anyLong(), any(Pageable.class)))
                 .thenReturn(new ArrayList<>());
 
-        List<Item> savedItems = itemService.getItemsByRequest(1L, new OffsetBasedPageRequest(0, 9999));
+        List<Item> savedItems = itemService.getItemsByRequest(1L, PageRequest.of(0 / 9999, 9999));
 
         assertNotNull(savedItems);
     }
@@ -207,7 +207,7 @@ public class ItemServiceTest {
         when(itemRepository.findAllByRequestId(anyLong(), any(Pageable.class)))
                 .thenReturn(null);
 
-        List<Item> savedItems = itemService.getItemsByRequest(1L, new OffsetBasedPageRequest(0, 9999));
+        List<Item> savedItems = itemService.getItemsByRequest(1L, PageRequest.of(0 / 9999, 9999));
 
         assertNull(savedItems);
     }
@@ -228,7 +228,7 @@ public class ItemServiceTest {
         when(itemRepository.findAllByOwnerIdOrderById(anyLong(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Item>());
 
-        List<Item> savedItem = itemService.getItemsByOwnerId(1L, new OffsetBasedPageRequest(0, 9999));
+        List<Item> savedItem = itemService.getItemsByOwnerId(1L, PageRequest.of(0 / 9999, 9999));
 
         assertNotNull(savedItem);
     }
@@ -238,14 +238,14 @@ public class ItemServiceTest {
         when(itemRepository.findItemsByKeyword(anyString(), any(Pageable.class)))
                 .thenReturn(new ArrayList<Item>());
 
-        List<Item> savedItem = itemService.findItemsByKeyword("example", new OffsetBasedPageRequest(0, 9999));
+        List<Item> savedItem = itemService.findItemsByKeyword("example", PageRequest.of(0 / 9999, 9999));
 
         assertNotNull(savedItem);
     }
 
     @Test
     void testGetItemsByKeyword_EmptyKeyword() {
-        List<Item> savedItem = itemService.findItemsByKeyword("", new OffsetBasedPageRequest(0, 9999));
+        List<Item> savedItem = itemService.findItemsByKeyword("", PageRequest.of(0 / 9999, 9999));
 
         assertNotNull(savedItem);
     }

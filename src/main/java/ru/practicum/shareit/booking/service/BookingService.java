@@ -1,7 +1,6 @@
 package ru.practicum.shareit.booking.service;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.model.Booking;
@@ -37,13 +36,10 @@ import static ru.practicum.shareit.booking.repository.BookingSpecification.start
 @Service
 @AllArgsConstructor
 public class BookingService {
-    @Autowired
     private final BookingRepository bookingRepository;
 
-    @Autowired
     private final UserRepository userRepository;
 
-    @Autowired
     private final ItemRepository itemRepository;
 
     public Booking addBooking(Long id, Booking booking) {

@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
@@ -11,7 +12,6 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.sql.Timestamp;
@@ -35,20 +35,20 @@ public class ItemRepositoryTest {
 
     @Test
     public void testGetItemsByOwnerId() {
-        List<Item> result = itemRepository.findAllByOwnerIdOrderById(1L, new OffsetBasedPageRequest(0, 9999));
+        List<Item> result = itemRepository.findAllByOwnerIdOrderById(1L, PageRequest.of(0 / 9999, 9999));
         assertNotNull(result);
     }
 
     @Test
     public void testFindItemsByKeyword() {
         List<Item> result = itemRepository.findItemsByKeyword("аккумуляторная",
-                new OffsetBasedPageRequest(0, 9999));
+                PageRequest.of(0 / 9999, 9999));
         assertNotNull(result);
     }
 
     @Test
     public void testGetItemsByRequest() {
-        List<Item> result = itemRepository.findAllByRequestId(1L, new OffsetBasedPageRequest(0, 9999));
+        List<Item> result = itemRepository.findAllByRequestId(1L, PageRequest.of(0 / 9999, 9999));
         assertNotNull(result);
     }
 

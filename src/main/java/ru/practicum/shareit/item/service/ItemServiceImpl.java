@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.repository.BookingRepository;
@@ -32,19 +31,15 @@ import java.util.stream.Stream;
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    @Autowired
+
     private final ItemRepository itemRepository;
 
-    @Autowired
     private final UserRepository userRepository;
 
-    @Autowired
     private final BookingRepository bookingRepository;
 
-    @Autowired
     private final CommentRepository commentRepository;
 
-    @Autowired
     private final ItemRequestService itemRequestService;
 
     @Override

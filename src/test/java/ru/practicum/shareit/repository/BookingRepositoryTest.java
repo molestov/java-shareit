@@ -4,12 +4,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.model.BookingStatus;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.sql.Timestamp;
@@ -39,7 +39,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByUserRequest1() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L)),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -47,7 +47,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByUserRequest2() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L)).and(startAfterNow()),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -56,7 +56,7 @@ public class BookingRepositoryTest {
     public void testBookingsByUserRequest3() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L).and(startBeforeNow()
                         .and(endAfterNow()))),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -64,7 +64,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByUserRequest4() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasBookerId(1L).and(endBeforeNow())),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -72,7 +72,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByUserRequest5() {
         List<Booking> result = bookingRepository.findAll(hasBookerId(1L).and(hasStatus(BookingStatus.WAITING)),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -80,7 +80,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByOwnerRequest1() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L)),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -88,7 +88,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByOwnerRequest2() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L)).and(startAfterNow()),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -96,7 +96,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByOwnerRequest3() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L).and(startBeforeNow()
-                        .and(endAfterNow()))), new OffsetBasedPageRequest(0, 9999)).getContent();
+                        .and(endAfterNow()))), PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -104,7 +104,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByOwnerRequest4() {
         List<Booking> result = bookingRepository.findAll(orderByStartDateDesc(hasOwnerId(1L).and(endBeforeNow())),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -112,7 +112,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByOwnerRequest5() {
         List<Booking> result = bookingRepository.findAll(hasOwnerId(1L).and(hasStatus(BookingStatus.WAITING)),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -120,7 +120,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByOwnerRequest6() {
         List<Booking> result = bookingRepository.findAll(hasOwnerId(1L).and(hasStatus(BookingStatus.REJECTED)),
-                new OffsetBasedPageRequest(0, 9999)).getContent();
+                PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }
@@ -128,7 +128,7 @@ public class BookingRepositoryTest {
     @Test
     public void testBookingsByUserRequest6() {
         List<Booking> result = bookingRepository.findAll(hasBookerId(1L).and(hasBookerId(1L)
-                        .and(hasStatus(BookingStatus.REJECTED))), new OffsetBasedPageRequest(0, 9999)).getContent();
+                        .and(hasStatus(BookingStatus.REJECTED))), PageRequest.of(0 / 9999, 9999)).getContent();
 
         assertNotNull(result);
     }

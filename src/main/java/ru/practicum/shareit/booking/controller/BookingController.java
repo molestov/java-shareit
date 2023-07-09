@@ -1,7 +1,7 @@
 package ru.practicum.shareit.booking.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -18,7 +18,6 @@ import ru.practicum.shareit.booking.mapper.BookingMapper;
 import ru.practicum.shareit.booking.model.Booking;
 import ru.practicum.shareit.booking.service.BookingService;
 import ru.practicum.shareit.item.service.ItemService;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
@@ -32,16 +31,12 @@ import java.util.List;
 @Validated
 public class BookingController {
 
-    @Autowired
     private final BookingService bookingService;
 
-    @Autowired
     private final BookingMapper bookingMapper;
 
-    @Autowired
     private final UserService userService;
 
-    @Autowired
     private final ItemService itemService;
 
     @PostMapping
@@ -76,7 +71,7 @@ public class BookingController {
                                          @RequestParam(value = "size", defaultValue = "9999")
                                          @Positive int size) {
         return bookingMapper.toListDtoWithEntities(bookingService.getAllUserBookingsByState(userId, state,
-                new OffsetBasedPageRequest(from, size)));
+                PageRequest.of(from / size, size)));
     }
 
     @GetMapping("/owner")
@@ -87,6 +82,6 @@ public class BookingController {
                                                 @RequestParam(value = "size", defaultValue = "9999")
                                                 @Positive int size) {
         return bookingMapper.toListDtoWithEntities(bookingService.getAllOwnerBookingsByState(userId, state,
-                new OffsetBasedPageRequest(from, size)));
+                PageRequest.of(from / size, size)));
     }
 }

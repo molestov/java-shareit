@@ -8,6 +8,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import ru.practicum.shareit.booking.model.Booking;
@@ -22,7 +23,6 @@ import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.error.exception.WrongStateException;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.ItemRepository;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.user.model.User;
 import ru.practicum.shareit.user.repository.UserRepository;
 
@@ -290,12 +290,12 @@ public class BookingServiceTest {
         when(bookingRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl(new ArrayList<Booking>()));
 
-        List<Booking> savedBookings1 = bookingService.getAllUserBookingsByState(1L, "ALL", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings2 = bookingService.getAllUserBookingsByState(1L, "CURRENT", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings3 = bookingService.getAllUserBookingsByState(1L, "PAST", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings4 = bookingService.getAllUserBookingsByState(1L, "FUTURE", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings5 = bookingService.getAllUserBookingsByState(1L, "WAITING", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings6 = bookingService.getAllUserBookingsByState(1L, "REJECTED", new OffsetBasedPageRequest(0, 9999));
+        List<Booking> savedBookings1 = bookingService.getAllUserBookingsByState(1L, "ALL", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings2 = bookingService.getAllUserBookingsByState(1L, "CURRENT", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings3 = bookingService.getAllUserBookingsByState(1L, "PAST", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings4 = bookingService.getAllUserBookingsByState(1L, "FUTURE", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings5 = bookingService.getAllUserBookingsByState(1L, "WAITING", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings6 = bookingService.getAllUserBookingsByState(1L, "REJECTED", PageRequest.of(0 / 9999, 9999));
 
         Assertions.assertNotNull(savedBookings1);
         Assertions.assertNotNull(savedBookings2);
@@ -308,7 +308,7 @@ public class BookingServiceTest {
     @Test
     void testAllUserBookingsByStateWithError1() {
         WrongStateException exception = assertThrows(WrongStateException.class,
-                () -> bookingService.getAllUserBookingsByState(1L, "SOME", new OffsetBasedPageRequest(0, 9999)));
+                () -> bookingService.getAllUserBookingsByState(1L, "SOME", PageRequest.of(0 / 9999, 9999)));
 
         assertEquals("Unknown state: SOME", exception.getMessage());
 
@@ -319,7 +319,7 @@ public class BookingServiceTest {
         when(userRepository.existsById(anyLong()))
                 .thenReturn(false);
         UnknownIdException exception = assertThrows(UnknownIdException.class,
-                () -> bookingService.getAllUserBookingsByState(1L, "ALL", new OffsetBasedPageRequest(0, 9999)));
+                () -> bookingService.getAllUserBookingsByState(1L, "ALL", PageRequest.of(0 / 9999, 9999)));
 
         assertEquals("Id not found", exception.getMessage());
 
@@ -332,12 +332,12 @@ public class BookingServiceTest {
         when(bookingRepository.findAll(any(Specification.class), any(Pageable.class)))
                 .thenReturn(new PageImpl(new ArrayList<Booking>()));
 
-        List<Booking> savedBookings1 = bookingService.getAllOwnerBookingsByState(1L, "ALL", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings2 = bookingService.getAllOwnerBookingsByState(1L, "CURRENT", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings3 = bookingService.getAllOwnerBookingsByState(1L, "PAST", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings4 = bookingService.getAllOwnerBookingsByState(1L, "FUTURE", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings5 = bookingService.getAllOwnerBookingsByState(1L, "WAITING", new OffsetBasedPageRequest(0, 9999));
-        List<Booking> savedBookings6 = bookingService.getAllOwnerBookingsByState(1L, "REJECTED", new OffsetBasedPageRequest(0, 9999));
+        List<Booking> savedBookings1 = bookingService.getAllOwnerBookingsByState(1L, "ALL", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings2 = bookingService.getAllOwnerBookingsByState(1L, "CURRENT", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings3 = bookingService.getAllOwnerBookingsByState(1L, "PAST", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings4 = bookingService.getAllOwnerBookingsByState(1L, "FUTURE", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings5 = bookingService.getAllOwnerBookingsByState(1L, "WAITING", PageRequest.of(0 / 9999, 9999));
+        List<Booking> savedBookings6 = bookingService.getAllOwnerBookingsByState(1L, "REJECTED", PageRequest.of(0 / 9999, 9999));
 
         Assertions.assertNotNull(savedBookings1);
         Assertions.assertNotNull(savedBookings2);
@@ -350,7 +350,7 @@ public class BookingServiceTest {
     @Test
     void testAllOwnerBookingsByStateWithError1() {
         WrongStateException exception = assertThrows(WrongStateException.class,
-                () -> bookingService.getAllOwnerBookingsByState(1L, "SOME", new OffsetBasedPageRequest(0, 9999)));
+                () -> bookingService.getAllOwnerBookingsByState(1L, "SOME", PageRequest.of(0 / 9999, 9999)));
 
         assertEquals("Unknown state: SOME", exception.getMessage());
 
@@ -361,7 +361,7 @@ public class BookingServiceTest {
         when(userRepository.existsById(anyLong()))
                 .thenReturn(false);
         UnknownIdException exception = assertThrows(UnknownIdException.class,
-                () -> bookingService.getAllOwnerBookingsByState(1L, "ALL", new OffsetBasedPageRequest(0, 9999)));
+                () -> bookingService.getAllOwnerBookingsByState(1L, "ALL", PageRequest.of(0 / 9999, 9999)));
 
         assertEquals("Id not found", exception.getMessage());
 

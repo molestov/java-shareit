@@ -6,10 +6,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 import ru.practicum.shareit.error.exception.IllegalUserException;
 import ru.practicum.shareit.error.exception.UnknownIdException;
 import ru.practicum.shareit.item.model.Item;
-import ru.practicum.shareit.misc.OffsetBasedPageRequest;
 import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.request.repository.RequestRepository;
 import ru.practicum.shareit.request.service.ItemRequestService;
@@ -70,7 +70,7 @@ public class ItemRequestServiceTest {
                 .thenReturn(new ArrayList<ItemRequest>());
 
         List<ItemRequest> savedItemRequest = itemRequestService.getAllRequests(1L,
-                new OffsetBasedPageRequest(0, 9999));
+                PageRequest.of(0 / 9999, 9999));
         assertNotNull(savedItemRequest);
     }
 
@@ -80,7 +80,7 @@ public class ItemRequestServiceTest {
                 .thenReturn(false);
 
         UnknownIdException exception = assertThrows(UnknownIdException.class,
-                () -> itemRequestService.getAllRequests(1L, new OffsetBasedPageRequest(0, 9999)));
+                () -> itemRequestService.getAllRequests(1L, PageRequest.of(0 / 9999, 9999)));
 
         assertEquals("User not found", exception.getMessage());
     }
