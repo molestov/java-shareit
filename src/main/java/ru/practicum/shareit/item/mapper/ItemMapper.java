@@ -1,6 +1,7 @@
 package ru.practicum.shareit.item.mapper;
 
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 import ru.practicum.shareit.item.dto.CommentDto;
 import ru.practicum.shareit.item.dto.ItemDto;
 import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
@@ -10,14 +11,18 @@ import ru.practicum.shareit.request.model.ItemRequest;
 import ru.practicum.shareit.user.model.User;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Mapper(componentModel = "spring")
 public abstract class ItemMapper {
 
+    @Mapping(source = "request", target = "requestId")
     public abstract ItemDto toItemDto(Item item);
 
-    public Long map(ItemRequest value) {
+    public abstract List<ItemDto> toListDto(List<Item> items);
+
+    public Long mapRequest(ItemRequest value) {
         if (value == null) {
             return null;
         }

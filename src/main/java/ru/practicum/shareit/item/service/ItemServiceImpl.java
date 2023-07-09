@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import ru.practicum.shareit.booking.repository.BookingRepository;
 import ru.practicum.shareit.error.exception.EmptyNameException;
@@ -16,6 +16,7 @@ import ru.practicum.shareit.item.model.Comment;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.repository.CommentRepository;
 import ru.practicum.shareit.item.repository.ItemRepository;
+import ru.practicum.shareit.request.service.ItemRequestService;
 import ru.practicum.shareit.user.repository.UserRepository;
 
 import java.beans.FeatureDescriptor;
@@ -30,14 +31,16 @@ import java.util.stream.Stream;
 @Service
 @AllArgsConstructor
 public class ItemServiceImpl implements ItemService {
-    @Autowired
+
     private final ItemRepository itemRepository;
-    @Autowired
+
     private final UserRepository userRepository;
-    @Autowired
+
     private final BookingRepository bookingRepository;
-    @Autowired
+
     private final CommentRepository commentRepository;
+
+    private final ItemRequestService itemRequestService;
 
     @Override
     public Item addItem(Long ownerId, Item item) {
@@ -83,18 +86,18 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public List<Item> getItemsByOwnerId(Long id) {
-        List<Item> items = itemRepository.findAllByOwnerIdOrderById(id);
+    public List<Item> getItemsByOwnerId(Long id, Pageable pageable) {
+        List<Item> items = itemRepository.findAllByOwnerIdOrderById(id, pageable);
         items.forEach(item -> item.setOwnerRequest(true));
         return items;
     }
 
     @Override
-    public List<Item> findItemsByKeyword(String keyword) {
+    public List<Item> findItemsByKeyword(String keyword, Pageable pageable) {
         if (keyword.isEmpty()) {
             return new ArrayList<>();
         }
-        return itemRepository.findItemsByKeyword(keyword);
+        return itemRepository.findItemsByKeyword(keyword, pageable);
     }
 
     @Override
@@ -111,7 +114,7 @@ public class ItemServiceImpl implements ItemService {
         return setAuthorName(commentRepository.save(comment));
     }
 
-    boolean checkUserBookings(Long userId, Long itemId) {
+    private boolean checkUserBookings(Long userId, Long itemId) {
         return bookingRepository.checkUserBookings(userId, itemId).isPresent();
     }
 
@@ -126,5 +129,10 @@ public class ItemServiceImpl implements ItemService {
                 .collect(Collectors.toList());
         item.setComments(comments);
         return item;
+    }
+
+    @Override
+    public List<Item> getItemsByRequest(Long id, Pageable pageable) {
+        return itemRepository.findAllByRequestId(id, pageable);
     }
 }

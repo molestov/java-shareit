@@ -14,10 +14,15 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class CommentDto {
     private Long id;
+
     @NonNull
     private String text;
+
     private Long item;
+
     private Long author;
+
     private String authorName;
+
     private Timestamp created;
 }

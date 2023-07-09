@@ -1,6 +1,8 @@
 package ru.practicum.shareit.booking.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,25 +21,23 @@ import ru.practicum.shareit.item.service.ItemService;
 import ru.practicum.shareit.user.service.UserService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
+@AllArgsConstructor
 @RequestMapping(path = "/bookings")
+@Validated
 public class BookingController {
-    private final BookingService bookingService;
-    private final BookingMapper bookingMapper;
-    private final UserService userService;
-    private final ItemService itemService;
 
-    @Autowired
-    public BookingController(BookingService bookingService, BookingMapper bookingMapper,
-                             UserService userService, ItemService itemService) {
-        this.bookingService = bookingService;
-        this.bookingMapper = bookingMapper;
-        this.userService = userService;
-        this.itemService = itemService;
-    }
+    private final BookingService bookingService;
+
+    private final BookingMapper bookingMapper;
+
+    private final UserService userService;
+
+    private final ItemService itemService;
 
     @PostMapping
     public BookingDtoWithEntities addBooking(@RequestHeader("X-Sharer-User-Id") Long id,
@@ -65,17 +65,23 @@ public class BookingController {
 
     @GetMapping
     public List<BookingDtoWithEntities> getAllUserBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                         @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        return bookingService.getAllUserBookingsByState(userId, state).stream()
-                .map(bookingMapper::bookingToBookingDtoWithEntities)
-                .collect(Collectors.toList());
+                                         @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                         @RequestParam(value = "from", defaultValue = "0")
+                                         @PositiveOrZero int from,
+                                         @RequestParam(value = "size", defaultValue = "9999")
+                                         @Positive int size) {
+        return bookingMapper.toListDtoWithEntities(bookingService.getAllUserBookingsByState(userId, state,
+                PageRequest.of(from / size, size)));
     }
 
     @GetMapping("/owner")
     public List<BookingDtoWithEntities> getAllOwnerBookingsByState(@RequestHeader("X-Sharer-User-Id") Long userId,
-                                                      @RequestParam(value = "state", defaultValue = "ALL") String state) {
-        return bookingService.getAllOwnerBookingsByState(userId, state).stream()
-                .map(bookingMapper::bookingToBookingDtoWithEntities)
-                .collect(Collectors.toList());
+                                                @RequestParam(value = "state", defaultValue = "ALL") String state,
+                                                @RequestParam(value = "from", defaultValue = "0")
+                                                @PositiveOrZero int from,
+                                                @RequestParam(value = "size", defaultValue = "9999")
+                                                @Positive int size) {
+        return bookingMapper.toListDtoWithEntities(bookingService.getAllOwnerBookingsByState(userId, state,
+                PageRequest.of(from / size, size)));
     }
 }

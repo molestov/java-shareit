@@ -1,6 +1,8 @@
 package ru.practicum.shareit.item.controller;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,14 +21,19 @@ import ru.practicum.shareit.item.dto.ItemDtoWithBookings;
 import ru.practicum.shareit.item.mapper.ItemMapper;
 import ru.practicum.shareit.item.model.Item;
 import ru.practicum.shareit.item.service.ItemService;
+import ru.practicum.shareit.request.service.ItemRequestService;
 
 import javax.validation.Valid;
+import javax.validation.constraints.Positive;
+import javax.validation.constraints.PositiveOrZero;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/items")
+@AllArgsConstructor
+@Validated
 public class ItemController {
     private final ItemService itemService;
 
@@ -36,19 +43,16 @@ public class ItemController {
 
     private final BookingMapper bookingMapper;
 
-    @Autowired
-    public ItemController(ItemService itemService, ItemMapper itemMapper,
-                          BookingService bookingService, BookingMapper bookingMapper) {
-        this.itemService = itemService;
-        this.itemMapper = itemMapper;
-        this.bookingService = bookingService;
-        this.bookingMapper = bookingMapper;
-    }
+    private final ItemRequestService itemRequestService;
 
     @PostMapping
     public ItemDto addItem(@RequestHeader("X-Sharer-User-Id") Long id,
-                           @Valid @RequestBody ItemDto item) {
-        return itemMapper.toItemDto(itemService.addItem(id, itemMapper.toItem(item)));
+                           @Valid @RequestBody ItemDto itemDto) {
+        Item item = itemMapper.toItem(itemDto);
+        if (itemDto.getRequestId() != null) {
+            item.setRequest(itemRequestService.getRequest(id, itemDto.getRequestId()));
+        }
+        return itemMapper.toItemDto(itemService.addItem(id, item));
     }
 
     @PatchMapping("/{id}")
@@ -69,8 +73,12 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemDtoWithBookings> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long id) {
-        List<Item> items =  itemService.getItemsByOwnerId(id);
+    public List<ItemDtoWithBookings> getItemsByOwner(@RequestHeader("X-Sharer-User-Id") Long id,
+                                                     @RequestParam(value = "from", defaultValue = "0")
+                                                     @PositiveOrZero int from,
+                                                     @RequestParam(value = "size", defaultValue = "9999")
+                                                     @Positive int size) {
+        List<Item> items =  itemService.getItemsByOwnerId(id, PageRequest.of(from / size, size));
         return items.stream()
                 .map(itemMapper::toItemDtoWithBookings)
                 .map(this::setBookings)
@@ -78,8 +86,12 @@ public class ItemController {
     }
 
     @GetMapping(value = "/search")
-    public List<ItemDto> searchItemByKeyword(@RequestParam(value = "text") String text) {
-        List<Item> items =  itemService.findItemsByKeyword(text);
+    public List<ItemDto> searchItemByKeyword(@RequestParam(value = "text") String text,
+                                             @RequestParam(value = "from", defaultValue = "0")
+                                             @PositiveOrZero int from,
+                                             @RequestParam(value = "size", defaultValue = "9999")
+                                             @Positive int size) {
+        List<Item> items =  itemService.findItemsByKeyword(text, PageRequest.of(from / size, size));
         return items.stream()
                 .map(itemMapper::toItemDto)
                 .collect(Collectors.toList());
@@ -92,7 +104,7 @@ public class ItemController {
         return itemMapper.toCommentDto(itemService.addComment(id, itemId, itemMapper.toComment(comment)));
     }
 
-    private ItemDtoWithBookings setBookings(ItemDtoWithBookings itemDtoWithBookings) {
+    public ItemDtoWithBookings setBookings(ItemDtoWithBookings itemDtoWithBookings) {
             Optional<Booking> lastBooking = bookingService.getLastBooking(itemDtoWithBookings.getId());
             Optional<Booking> nextBooking = bookingService.getNextBooking(itemDtoWithBookings.getId());
             if (lastBooking.isPresent()) {
