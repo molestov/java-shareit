@@ -58,7 +58,7 @@ public class ItemRequestController {
     public ItemRequestDto getRequest(@RequestHeader("X-Sharer-User-Id") Long id, @PathVariable Long requestId) {
         ItemRequestDto itemRequestDto = itemRequestMapper.toItemRequestDto(itemRequestService.getRequest(id, requestId));
         List<ItemDto> items = itemMapper.toListDto(itemService.getItemsByRequest(requestId,
-                PageRequest.of(0 / 9999, 9999)));
+                PageRequest.of(0 / 20, 20)));
         itemRequestDto.setItems(items);
         return itemRequestDto;
     }
@@ -67,7 +67,7 @@ public class ItemRequestController {
         itemRequestDtos
                 .forEach(request ->
                         request.setItems(itemMapper.toListDto(itemService.getItemsByRequest(request.getId(),
-                                PageRequest.of(0 / 9999, 9999)))));
+                                PageRequest.of(0 / 20, 20)))));
         return itemRequestDtos;
     }
 }
